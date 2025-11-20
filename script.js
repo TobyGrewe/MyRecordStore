@@ -136,13 +136,48 @@ const albums = [
     cover: "images/pinkFloydTheDarkSideOfTheMoon.jpg",
     link: "https://www.youtube.com/watch?v=k9ynZnEBtvw&list=RDk9ynZnEBtvw&start_radio=1"
   },
+  
   {
     title: "For You",
     artist: "Tatsuro Yamashita",
     genre: "City Pop",
     cover: "images/tatsuroYamashitaForYou.jpg",
     link: "https://www.dailymotion.com/video/x8mmgeh"
-  }
+  },
+
+  {
+    title: "Floral Shoppe",
+    artist: "Macintosh Plus",
+    genre: "Vapor Wave",
+    cover: "images/macintoshPlusFloralShoppe.jpg",
+    link: "https://www.youtube.com/watch?si=gDjl1JOb0qDrdq30&t=1&v=cCq0P509UL4&feature=youtu.be"
+  },
+
+  {
+    title: "Shinbangumi",
+    artist: "Ginger Root",
+    genre: "City Pop",
+    cover: "images/gingerRootShinbangumi.jpg",
+    link: ""
+  },
+
+  {
+    title: "Speaking In Tongues",
+    artist: "Talking Heads",
+    genre: "New Wave",
+    cover: "images/talkingHeadsSpeakingInTongues.jpg",
+    link: ""
+  },
+  
+  {
+    title: "You Will Never Know Why",
+    artist: "Sweet Trip",
+    genre: "Indie pop",
+    cover: "images/SweetTripYouWillNeverKnowWhy.jpg",
+    link: "https://www.youtube.com/watch?v=MSq0gOJ9AGA"
+  },
+  
+
 ];
 
 const albumContainer = document.getElementById("albumContainer");
@@ -312,3 +347,15 @@ const randomPickBtn = document.getElementById('randomPickBtn');
 randomPickBtn.addEventListener('click', () => {
   updateRandomAlbumDisplay();
 });
+
+function pickRandomAlbum() {
+  if (!albums || albums.length === 0) return;
+
+  const random = albums[Math.floor(Math.random() * albums.length)];
+
+  document.getElementById("randomAlbumCover").src = random.cover;
+  document.getElementById("randomAlbumText").textContent =
+    `${random.title} — ${random.artist}`;
+}
+
+document.getElementById("randomPickBtn")?.addEventListener("click", pickRandomAlbum);

@@ -12,21 +12,20 @@
 </head>
 <body>
   <header class="site-header">
-    <div class="container header-content">
-      <h1>My Album Collection</h1>
+  <div class="container header-content">
+    <h1 class="logo">Pax Amor Records</h1>
 
-      
+    <!-- Navigation -->
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="STATS_PAGE.html">Stats</a></li>
+        <li><a href="COLLECTION_PAGE.html">Collection</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
-      <!-- <section class="random-pick-section">
-       
-        <div class="random-album">
-          <img id="randomAlbumCover" src="" alt="Random Album Cover" />
-          <p id="randomAlbum">No album selected yet</p>
-        </div>
-        <button id="randomPickBtn">Pick Another</button>
-      </section>
-    </div> -->
-  </header>
 
   <main>
     <section class="stats-section">
@@ -52,13 +51,18 @@
           <h3>Genre Distribution</h3>
           <ul id="genreDistribution"></ul>
         </div>
+
+
         <div class="stat-card">
   <h3>Random Album</h3>
-  <div class="random-album"></div>
-  <img id="randomAlbumCoverStats" src="" alt="Random Album Cover" class="stat-album-cover" />
-  <p id="randomAlbumStats">—</p>
-  <button id="randomPickBtn">Pick Another</button>
+
+  <div class="random-album-container">
+    <img id="randomAlbumCover" class="random-album-img" src="" alt="Random Album Cover" />
+    <p id="randomAlbumText" class="random-album-text">—</p>
+    <button id="randomPickBtn" class="random-pick-btn">Pick Another</button>
+  </div>
 </div>
+
 
       </div>
     </section>

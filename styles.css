@@ -413,3 +413,55 @@ h1, h2, h3 {
   height: auto;
   display: block;
 }
+
+
+
+/* Force random stats album image to have consistent size */
+#randomAlbumCoverStats {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+
+/* ===== Random Album (Unified Rules) ===== */
+.random-album-container {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.random-album-img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.6);
+  display: block;
+  margin: 0.5rem auto;
+  transition: transform 0.3s ease;
+}
+
+.random-album-text {
+  text-align: center;
+  margin-top: 0.4rem;
+}
+
+.random-pick-btn {
+  margin-top: 0.6rem;
+  padding: 6px 12px;
+  background: #444;
+  color: #eee;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.random-pick-btn:hover {
+  background: #666;
+}
+
+.stat-card:hover .random-album-img {
+  transform: scale(1.08);
+}
