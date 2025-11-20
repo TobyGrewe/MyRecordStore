@@ -78,14 +78,14 @@ const albums = [
     artist: "Harry Styles",
     genre: "Pop",
     cover: "images/harryStylesHarrysHouse.png",
-    link: "https://www.youtube.com/watch?v=8ybQKl8HMFY&list=PLxA687tYuMWgWbfUsntXDsn5HgOz90ka-"
+    link: "https://www.youtube.com/playlist?list=PLo9rTk1CYUkWnkltbLGVXzBDM_k0vx_A_"
   },
   {
     title: "My Beautiful Dark Twisted Fantasy",
     artist: "Kanye West",
     genre: "Hip-Hop",
     cover: "images/kanyeWestMyBeautifulDarkTwistedFantasy.jpg",
-    link: "https://www.youtube.com/watch?v=0o9HzQ3zAcE&list=PLzMq4yH_FvVa5kPgtKmgdzPssfmBUtO2C"
+    link: "https://www.youtube.com/watch?v=UTH1VNHLjng&list=PLzMq4yH_FvVa5kPgtKmgdzPssfmBUtO2C&index=1"
   },
   {
     title: "Pet Sounds",
@@ -99,14 +99,14 @@ const albums = [
     artist: "Daft Punk",
     genre: "Electronic",
     cover: "images/daftPunkDiscovery.png",
-    link: "https://www.youtube.com/watch?v=A2VpR8HahKc&list=PLSdoVPM5WnndSQEXRz704yQkKwx76GvPV"
+    link: "https://www.youtube.com/watch?v=zKSsP2084nU&list=PLZv6xnm6clDYZuo0W2a2nqH0_iygXF79C"
   },
   {
     title: "Random Access Memories",
     artist: "Daft Punk",
     genre: "Electronic",
     cover: "images/daftPunkRandomAccessMemories.png",
-    link: "https://www.youtube.com/watch?v=3rpQTqpFTF4&list=PLZ60rAdTLVNuCAWD8W3dZTLBXbSPda-DX"
+    link: "https://www.youtube.com/watch?v=IluRBvnYMoY&list=OLAK5uy_kL8Foly6phCoLmgSWTPjgZsbAne85xMMM"
   },
   {
     title: "Blonde",
@@ -134,7 +134,7 @@ const albums = [
     artist: "Pink Floyd",
     genre: "Progressive Rock",
     cover: "images/pinkFloydTheDarkSideOfTheMoon.jpg",
-    link: "https://www.youtube.com/watch?v=k9ynZnEBtvw&list=RDk9ynZnEBtvw&start_radio=1"
+    link: "https://youtu.be/k9ynZnEBtvw?si=N5mxdypHxa-g6zeC"
   },
   
   {
@@ -158,7 +158,7 @@ const albums = [
     artist: "Ginger Root",
     genre: "City Pop",
     cover: "images/gingerRootShinbangumi.jpg",
-    link: ""
+    link: "https://www.youtube.com/watch?v=3GRXCLYibBg&list=RD3GRXCLYibBg&start_radio=1&t=1s"
   },
 
   {
@@ -166,7 +166,7 @@ const albums = [
     artist: "Talking Heads",
     genre: "New Wave",
     cover: "images/talkingHeadsSpeakingInTongues.jpg",
-    link: ""
+    link: "https://www.youtube.com/watch?v=4c_YkN-8WRM"
   },
   
   {
