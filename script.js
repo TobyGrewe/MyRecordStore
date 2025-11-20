@@ -45,7 +45,6 @@ const albums = [
     cover: "images/animalCollectiveMPP.png",
     link: "https://www.youtube.com/watch?v=Ebmp2YMIr9s&list=OLAK5uy_lq6ZY8GSCQhbG7Z6cr-rw5EL9CQ54CdSs"
   },
-
   {
     title: "Channel Orange",
     artist: "Frank Ocean",
@@ -53,7 +52,6 @@ const albums = [
     cover: "images/frankOceanChannelOrange.jpg",
     link: "https://www.youtube.com/watch?v=xEQ_946TO_g&list=OLAK5uy_mAGTQmYeosOR-Pp17OnnzkKHPeEbzSFOg"
   },
-
   {
     title: "Late Registration",
     artist: "Kanye West",
@@ -147,7 +145,6 @@ const albums = [
   }
 ];
 
-
 const albumContainer = document.getElementById("albumContainer");
 
 function displayAlbums() {
@@ -166,9 +163,68 @@ function displayAlbums() {
       </a>
     `;
 
+    // Add Notes button
+    const notesBtn = document.createElement('button');
+    notesBtn.textContent = "Notes";
+    notesBtn.className = 'notes-btn';
+    card.appendChild(notesBtn);
+
+    // Create Notes section
+    const notesSection = document.createElement('div');
+    notesSection.className = 'notes-section';
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'notes-textarea';
+
+    // Load saved notes from localStorage (key based on album title)
+    const savedNotes = localStorage.getItem(`notes-${album.title}`);
+    if (savedNotes) {
+      textarea.value = savedNotes;
+    }
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'notes-save-btn';
+    saveBtn.textContent = 'Save';
+
+    notesSection.appendChild(textarea);
+    notesSection.appendChild(saveBtn);
+    card.appendChild(notesSection);
+
+    // Toggle notes section on button click
+    notesBtn.addEventListener('click', () => {
+      notesSection.classList.toggle('active');
+    });
+
+    // Confirmation message
+    const confirmationMsg = document.createElement('div');
+    confirmationMsg.className = 'notes-confirmation';
+    confirmationMsg.textContent = 'Notes saved!';
+    notesSection.appendChild(confirmationMsg);
+
+    // Save notes to localStorage with confirmation
+    saveBtn.addEventListener('click', () => {
+      localStorage.setItem(`notes-${album.title}`, textarea.value);
+      confirmationMsg.classList.add('visible');
+      setTimeout(() => {
+        confirmationMsg.classList.remove('visible');
+      }, 2000);
+    });
+
+    // Character counter
+    const charCounter = document.createElement('div');
+    charCounter.style.fontSize = '0.8rem';
+    charCounter.style.color = '#666';
+    charCounter.style.marginTop = '4px';
+    charCounter.textContent = `Characters: ${textarea.value.length}`;
+    notesSection.appendChild(charCounter);
+
+    textarea.addEventListener('input', () => {
+      charCounter.textContent = `Characters: ${textarea.value.length}`;
+    });
+
     // Play vinyl sound on link click
     const link = card.querySelector('.album-link');
-    link.addEventListener('click', (e) => {
+    link.addEventListener('click', () => {
       vinylSound.currentTime = 0;
       vinylSound.play();
     });
@@ -179,7 +235,9 @@ function displayAlbums() {
 
 function calculateStats() {
   const albumCount = albums.length;
-  document.getElementById("albumCount").textContent = albumCount;
+
+  // Update all relevant count elements
+  document.querySelectorAll('#albumCount').forEach(el => el.textContent = albumCount);
 
   if (albumCount === 0) return;
 
@@ -192,10 +250,12 @@ function calculateStats() {
   // Top genre by count
   const topGenre = Object.entries(genreCounts)
     .sort((a, b) => b[1] - a[1])[0][0];
-  document.getElementById("topGenre").textContent = topGenre;
+
+  document.querySelectorAll('#topGenre').forEach(el => el.textContent = topGenre);
 
   // Most played album — for now first album
-  document.getElementById("topAlbum").textContent = albums[0].title;
+  const mostPlayed = albums[0].title;
+  document.querySelectorAll('#topAlbum').forEach(el => el.textContent = mostPlayed);
 
   // Recently Added (last 3)
   const recentAlbumsEl = document.getElementById("recentAlbums");
@@ -216,13 +276,39 @@ function calculateStats() {
     genreDistEl.appendChild(li);
   });
 
-  // Random Album Choice
-  const randomAlbumEl = document.getElementById("randomAlbum");
-  const randomIndex = Math.floor(Math.random() * albums.length);
-  const randomAlbum = albums[randomIndex];
-  randomAlbumEl.textContent = `${randomAlbum.title} — ${randomAlbum.artist}`;
+  // Random Album Choice - update text and image together
+  updateRandomAlbumDisplay();
 }
 
-// Run everything on page load
+function updateRandomAlbumDisplay() {
+  const randomIndex = Math.floor(Math.random() * albums.length);
+  const randomAlbum = albums[randomIndex];
+
+  const randomAlbumEl = document.getElementById("randomAlbum");
+  const randomAlbumCover = document.getElementById("randomAlbumCover");
+
+  const randomAlbumElStats = document.getElementById("randomAlbumStats");
+  const randomAlbumCoverStats = document.getElementById("randomAlbumCoverStats");
+
+  if (randomAlbumEl && randomAlbumCover) {
+    randomAlbumEl.textContent = `${randomAlbum.title} — ${randomAlbum.artist}`;
+    randomAlbumCover.src = randomAlbum.cover;
+    randomAlbumCover.alt = `${randomAlbum.title} album cover`;
+  }
+
+  if (randomAlbumElStats && randomAlbumCoverStats) {
+    randomAlbumElStats.textContent = `${randomAlbum.title} — ${randomAlbum.artist}`;
+    randomAlbumCoverStats.src = randomAlbum.cover;
+    randomAlbumCoverStats.alt = `${randomAlbum.title} album cover`;
+  }
+}
+
+
+// Initial page load
 displayAlbums();
 calculateStats();
+
+const randomPickBtn = document.getElementById('randomPickBtn');
+randomPickBtn.addEventListener('click', () => {
+  updateRandomAlbumDisplay();
+});
