@@ -39,18 +39,60 @@ h1, h2, h3 {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.8rem;
+  padding: 1rem;
+  max-width: 1100px;
+  margin: 0 auto 3rem;
 }
 
 .stat-card {
-  padding: 1rem;
-  border: 2px solid #222;
-  background: white;
+  background: #1a1a1a; /* dark charcoal */
+  color: #f0e6d2; /* cream */
+  padding: 1.3rem 1.6rem;
   border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  box-shadow: 4px 4px 0 #222;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(240, 230, 210, 0.7);
+}
+
+.stat-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-bottom: 2px solid #f0e6d2;
+  padding-bottom: 0.3rem;
+  width: 100%;
+}
+
+.stat-card p,
+.stat-card ul {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin: 0;
+  max-width: 90%;
+}
+
+.stat-card ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.stat-card ul li {
+  margin-bottom: 0.4rem;
+  border-bottom: 1px dotted #f0e6d2;
+  padding-bottom: 0.2rem;
 }
 
 /* ===== Album Gallery ===== */
@@ -137,3 +179,44 @@ h1, h2, h3 {
   margin-top: .5rem;
   color: #4ec3ff;
 }
+
+
+.album-link.vinyl {
+  background-color: #222; /* dark charcoal */
+  color: #f0e6d2; /* light cream */
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+  transition: background-color 0.3s ease;
+}
+
+.album-link.vinyl:hover {
+  background-color: #444;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.6);
+}
+
+.album-link.vinyl i {
+  font-size: 1.2rem;
+}
+
+
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.album-link.vinyl i:hover {
+  animation: spin 1.5s linear infinite;
+}
+

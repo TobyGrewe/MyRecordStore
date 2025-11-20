@@ -1,74 +1,228 @@
+// Play vinyl scratch sound
+const vinylSound = new Audio('sounds/vinyl-scratch.mp3');
+vinylSound.volume = 0.3;
+
 const albums = [
   {
     title: "Donuts",
     artist: "J Dilla",
     genre: "Hip-Hop",
     cover: "images/Dilladonuts.jpg",
-    link: "https://open.spotify.com/album/5fPglEDz9YEwRgbLRvhCZy"
+    link: "https://youtu.be/crZF0YNORIY?si=Kt6BCv0LbAPtBRg2"
   },
   {
     title: "Graduation",
     artist: "Kanye West",
     genre: "Hip-Hop",
     cover: "images/kanyWestGraduation.jpg",
-    link: "https://open.spotify.com/album/2UP1w6hKZ8cX1UMmRtP2TL"
+    link: "https://www.youtube.com/watch?v=rr3p8qy1X-g"
   },
   {
     title: "Modal Soul",
     artist: "Nujabes",
     genre: "Hip-Hop / Jazz",
     cover: "images/nujabesModalSoul.jpg",
-    link: "https://www.youtube.com/watch?v=3jvQB-qE3ZM"
+    link: "https://youtu.be/8iP3J8jFYdM?si=snDMWgrDUltNpgHm"
   },
   {
     title: "Nevermind",
     artist: "Nirvana",
     genre: "Alternative Rock",
     cover: "images/nNEVERMIND.webp",
-    link: "https://open.spotify.com/album/2guirT87VLN4A2qhRIzBtg"
+    link: "https://www.youtube.com/watch?v=EwENfTvSQbQ&list=RDEwENfTvSQbQ&start_radio=1"
   },
   {
     title: "Since I Left You",
     artist: "The Avalanches",
     genre: "Electronic",
     cover: "images/theAvalanchesSILY.jpg",
-    link: "https://open.spotify.com/album/0YF8P6d8hX6EdDfcvLJ20D"
+    link: "https://www.youtube.com/watch?v=TyOfYE5cqNk&list=PLVxakxoWul5V3M8awBfeQnboZN_fqkEPS&index=1"
   },
   {
     title: "Merriweather Post Pavilion",
     artist: "Animal Collective",
     genre: "Psychedelic Pop",
     cover: "images/animalCollectiveMPP.png",
-    link: "https://open.spotify.com/album/3kYkJ4oeXvSfsWcQlFYtO0"
+    link: "https://www.youtube.com/watch?v=Ebmp2YMIr9s&list=OLAK5uy_lq6ZY8GSCQhbG7Z6cr-rw5EL9CQ54CdSs"
+  },
+
+  {
+    title: "Channel Orange",
+    artist: "Frank Ocean",
+    genre: "R&B / Soul",
+    cover: "images/frankOceanChannelOrange.jpg",
+    link: "https://www.youtube.com/watch?v=xEQ_946TO_g&list=OLAK5uy_mAGTQmYeosOR-Pp17OnnzkKHPeEbzSFOg"
+  },
+
+  {
+    title: "Late Registration",
+    artist: "Kanye West",
+    genre: "Hip-Hop",
+    cover: "images/kanyeWestLateRegistration.jpg",
+    link: "https://www.youtube.com/watch?v=14Ef5mb2qhc&list=PLAn-T5fEM_WC7RUX39PezdMp8Qlo-oiMh"
+  },
+  {
+    title: "The Life of Pablo",
+    artist: "Kanye West",
+    genre: "Hip-Hop",
+    cover: "images/kanyeWestTheLifeOfPablo.jpg",
+    link: "https://www.youtube.com/watch?v=6oHdAA3AqnE&list=PLzMq4yH_FvVac_1R0DMcMkcwnJ1-hFx6b"
+  },
+  {
+    title: "The College Dropout",
+    artist: "Kanye West",
+    genre: "Hip-Hop",
+    cover: "images/kanyeWestTheCollegeDropout.jpg",
+    link: "https://www.youtube.com/watch?v=OTZzjAU0Kg0&list=PLTfO7IRJ-B3BKFN93H4G9D9lyklswLNtX"
+  },
+  {
+    title: "Harry's House",
+    artist: "Harry Styles",
+    genre: "Pop",
+    cover: "images/harryStylesHarrysHouse.png",
+    link: "https://www.youtube.com/watch?v=8ybQKl8HMFY&list=PLxA687tYuMWgWbfUsntXDsn5HgOz90ka-"
+  },
+  {
+    title: "My Beautiful Dark Twisted Fantasy",
+    artist: "Kanye West",
+    genre: "Hip-Hop",
+    cover: "images/kanyeWestMyBeautifulDarkTwistedFantasy.jpg",
+    link: "https://www.youtube.com/watch?v=0o9HzQ3zAcE&list=PLzMq4yH_FvVa5kPgtKmgdzPssfmBUtO2C"
+  },
+  {
+    title: "Pet Sounds",
+    artist: "The Beach Boys",
+    genre: "Rock / Pop",
+    cover: "images/theBeachBoysPetSounds.jpg",
+    link: "https://www.youtube.com/playlist?list=OLAK5uy_mJN3N2XYKY6P2RpKP_-Zk20HwDSewNAYY&playnext=1&index=1"
+  },
+  {
+    title: "Discovery",
+    artist: "Daft Punk",
+    genre: "Electronic",
+    cover: "images/daftPunkDiscovery.png",
+    link: "https://www.youtube.com/watch?v=A2VpR8HahKc&list=PLSdoVPM5WnndSQEXRz704yQkKwx76GvPV"
+  },
+  {
+    title: "Random Access Memories",
+    artist: "Daft Punk",
+    genre: "Electronic",
+    cover: "images/daftPunkRandomAccessMemories.png",
+    link: "https://www.youtube.com/watch?v=3rpQTqpFTF4&list=PLZ60rAdTLVNuCAWD8W3dZTLBXbSPda-DX"
+  },
+  {
+    title: "Blonde",
+    artist: "Frank Ocean",
+    genre: "R&B / Soul",
+    cover: "images/frankOceanBlonde.jpeg",
+    link: "https://www.youtube.com/watch?v=fahxSXoXlsA&list=PLDCdjwiC90TGiL_tRVbJLerxjNqFz7of2"
+  },
+  {
+    title: "Little Dark Age",
+    artist: "MGMT",
+    genre: "Synthpop / Indie",
+    cover: "images/mgmtMyLittleDarkAge.png",
+    link: "https://www.youtube.com/watch?v=e0QT4N-5PA4&list=OLAK5uy_kBFHQWSR3V3RPeRDSA1JKl_HpHDVgYYEA"
+  },
+  {
+    title: "Skiptracing",
+    artist: "Mild High Club",
+    genre: "Psychedelic Pop",
+    cover: "images/mildHighClubSkiptracing.jpg",
+    link: "https://www.youtube.com/watch?v=iXehtTIgjrw&list=PLbJ3VMmxqdGWc9G4n3W6o_KFjoLTc76Nv"
+  },
+  {
+    title: "The Dark Side of the Moon",
+    artist: "Pink Floyd",
+    genre: "Progressive Rock",
+    cover: "images/pinkFloydTheDarkSideOfTheMoon.jpg",
+    link: "https://www.youtube.com/watch?v=k9ynZnEBtvw&list=RDk9ynZnEBtvw&start_radio=1"
+  },
+  {
+    title: "For You",
+    artist: "Tatsuro Yamashita",
+    genre: "City Pop",
+    cover: "images/tatsuroYamashitaForYou.jpg",
+    link: "https://www.dailymotion.com/video/x8mmgeh"
   }
 ];
 
 
-
-// ===== Render Albums =====
 const albumContainer = document.getElementById("albumContainer");
 
 function displayAlbums() {
-  albumContainer.innerHTML = ""; // clear
+  albumContainer.innerHTML = ""; // Clear container
 
   albums.forEach(album => {
-    const card = document.createElement("div");
-    card.className = "album-card";
+    const card = document.createElement('div');
+    card.className = 'album-card';
 
     card.innerHTML = `
       <img class="album-cover" src="${album.cover}" alt="${album.title}">
       <h3 class="album-title">${album.title}</h3>
       <p class="album-artist">${album.artist}</p>
-      <a class="album-link" href="${album.link}" target="_blank">Listen</a>
+      <a class="album-link vinyl" href="${album.link}" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-record-vinyl"></i> Listen
+      </a>
     `;
+
+    // Play vinyl sound on link click
+    const link = card.querySelector('.album-link');
+    link.addEventListener('click', (e) => {
+      vinylSound.currentTime = 0;
+      vinylSound.play();
+    });
 
     albumContainer.appendChild(card);
   });
 }
 
-displayAlbums();
+function calculateStats() {
+  const albumCount = albums.length;
+  document.getElementById("albumCount").textContent = albumCount;
 
-// ===== Basic Stats =====
-document.getElementById("albumCount").textContent = albums.length;
-document.getElementById("topGenre").textContent = "Hip-Hop / Electronic";
-document.getElementById("topAlbum").textContent = albums[0].title;
+  if (albumCount === 0) return;
+
+  // Count genres
+  const genreCounts = {};
+  albums.forEach(a => {
+    genreCounts[a.genre] = (genreCounts[a.genre] || 0) + 1;
+  });
+
+  // Top genre by count
+  const topGenre = Object.entries(genreCounts)
+    .sort((a, b) => b[1] - a[1])[0][0];
+  document.getElementById("topGenre").textContent = topGenre;
+
+  // Most played album — for now first album
+  document.getElementById("topAlbum").textContent = albums[0].title;
+
+  // Recently Added (last 3)
+  const recentAlbumsEl = document.getElementById("recentAlbums");
+  recentAlbumsEl.innerHTML = "";
+  const recent = albums.slice(-3).reverse(); // newest first
+  recent.forEach(album => {
+    const li = document.createElement("li");
+    li.textContent = `${album.title} — ${album.artist}`;
+    recentAlbumsEl.appendChild(li);
+  });
+
+  // Genre Distribution (list all genres with counts)
+  const genreDistEl = document.getElementById("genreDistribution");
+  genreDistEl.innerHTML = "";
+  Object.entries(genreCounts).forEach(([genre, count]) => {
+    const li = document.createElement("li");
+    li.textContent = `${genre}: ${count}`;
+    genreDistEl.appendChild(li);
+  });
+
+  // Random Album Choice
+  const randomAlbumEl = document.getElementById("randomAlbum");
+  const randomIndex = Math.floor(Math.random() * albums.length);
+  const randomAlbum = albums[randomIndex];
+  randomAlbumEl.textContent = `${randomAlbum.title} — ${randomAlbum.artist}`;
+}
+
+// Run everything on page load
+displayAlbums();
+calculateStats();
