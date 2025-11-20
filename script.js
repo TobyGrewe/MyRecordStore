@@ -1,71 +1,74 @@
-// ===== Album Data =====
-// You can manually add albums here for now.
-// Later we can switch to Spotify/Apple Music APIs.
-
 const albums = [
   {
-    title: "In Rainbows",
-    artist: "Radiohead",
-    genre: "Alternative",
-    cover:
-      "https://upload.wikimedia.org/wikipedia/en/6/6e/In_Rainbows_Official_Cover.png",
-    link: "https://open.spotify.com/album/5vkqYmiPBYLaalcmjujWxK",
+    title: "Donuts",
+    artist: "J Dilla",
+    genre: "Hip-Hop",
+    cover: "images/Dilladonuts.jpg",
+    link: "https://open.spotify.com/album/5fPglEDz9YEwRgbLRvhCZy"
   },
   {
-    title: "Flower Boy",
-    artist: "Tyler, The Creator",
+    title: "Graduation",
+    artist: "Kanye West",
     genre: "Hip-Hop",
-    cover:
-      "https://upload.wikimedia.org/wikipedia/en/a/a0/Tyler%2C_the_Creator_-_Flower_Boy.png",
-    link: "https://open.spotify.com/album/2nkto6YNI4rUYTLqEwWJ3o",
+    cover: "images/kanyWestGraduation.jpg",
+    link: "https://open.spotify.com/album/2UP1w6hKZ8cX1UMmRtP2TL"
   },
+  {
+    title: "Modal Soul",
+    artist: "Nujabes",
+    genre: "Hip-Hop / Jazz",
+    cover: "images/nujabesModalSoul.jpg",
+    link: "https://www.youtube.com/watch?v=3jvQB-qE3ZM"
+  },
+  {
+    title: "Nevermind",
+    artist: "Nirvana",
+    genre: "Alternative Rock",
+    cover: "images/nNEVERMIND.webp",
+    link: "https://open.spotify.com/album/2guirT87VLN4A2qhRIzBtg"
+  },
+  {
+    title: "Since I Left You",
+    artist: "The Avalanches",
+    genre: "Electronic",
+    cover: "images/theAvalanchesSILY.jpg",
+    link: "https://open.spotify.com/album/0YF8P6d8hX6EdDfcvLJ20D"
+  },
+  {
+    title: "Merriweather Post Pavilion",
+    artist: "Animal Collective",
+    genre: "Psychedelic Pop",
+    cover: "images/animalCollectiveMPP.png",
+    link: "https://open.spotify.com/album/3kYkJ4oeXvSfsWcQlFYtO0"
+  }
 ];
 
-// ===== Populate Albums on Page =====
+
+
+// ===== Render Albums =====
 const albumContainer = document.getElementById("albumContainer");
 
 function displayAlbums() {
-  albumContainer.innerHTML = "";
+  albumContainer.innerHTML = ""; // clear
 
-  albums.forEach((album) => {
-    const card = document.createElement("a");
-    card.classList.add("album-card");
-    card.href = album.link;
-    card.target = "_blank";
+  albums.forEach(album => {
+    const card = document.createElement("div");
+    card.className = "album-card";
 
     card.innerHTML = `
-      <img src="${album.cover}" alt="${album.title}" class="album-cover" />
-      <div class="album-info">
-        <p class="album-title">${album.title}</p>
-        <p class="album-artist">${album.artist}</p>
-      </div>
+      <img class="album-cover" src="${album.cover}" alt="${album.title}">
+      <h3 class="album-title">${album.title}</h3>
+      <p class="album-artist">${album.artist}</p>
+      <a class="album-link" href="${album.link}" target="_blank">Listen</a>
     `;
 
     albumContainer.appendChild(card);
   });
 }
 
-// ===== Stats =====
-function calculateStats() {
-  const albumCount = albums.length;
-  document.getElementById("albumCount").textContent = albumCount;
-
-  if (albumCount === 0) return;
-
-  // Top Genre
-  const genreCounts = {};
-  albums.forEach((a) => {
-    genreCounts[a.genre] = (genreCounts[a.genre] || 0) + 1;
-  });
-
-  const topGenre = Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0][0];
-  document.getElementById("topGenre").textContent = topGenre;
-
-  // Most Played Album (basic version: just the first for now)
-  const topAlbum = albums[0].title;
-  document.getElementById("topAlbum").textContent = topAlbum;
-}
-
-// Run on page load
 displayAlbums();
-calculateStats();
+
+// ===== Basic Stats =====
+document.getElementById("albumCount").textContent = albums.length;
+document.getElementById("topGenre").textContent = "Hip-Hop / Electronic";
+document.getElementById("topAlbum").textContent = albums[0].title;

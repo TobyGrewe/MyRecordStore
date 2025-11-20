@@ -103,3 +103,37 @@ h1, h2, h3 {
   font-size: 0.9rem;
   margin-top: 2px;
 }
+
+
+
+
+.album-card {
+  background: #222;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.album-cover {
+  width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+
+.album-title {
+  margin-top: .5rem;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.album-artist {
+  color: #bbb;
+  font-size: .9rem;
+}
+
+.album-link {
+  display: inline-block;
+  margin-top: .5rem;
+  color: #4ec3ff;
+}
