@@ -1,466 +1,1489 @@
-// Play vinyl scratch sound
-const vinylSound = new Audio('sounds/vinyl-scratch.mp3');
-vinylSound.volume = 0.3;
-
 /* =========================
-   1. DATA SETUP (your full album array)
-   ========================= */
-const albums = [
-    { id: 1, title: "Donuts", artist: "J Dilla", genre: "Hip-Hop", cover: "images/Dilladonuts.jpg", link: "https://youtu.be/crZF0YNORIY?si=Kt6BCv0LbAPtBRg2", dateAdded: "2023-10-01", year: 2006, rating: 0, playCount: 0, isFavorite: false },
-    { id: 2, title: "Graduation", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyWestGraduation.jpg", link: "https://www.youtube.com/watch?v=rr3p8qy1X-g", dateAdded: "2023-11-15", year: 2007, rating: 0, playCount: 0, isFavorite: false },
-    { id: 3, title: "Modal Soul", artist: "Nujabes", genre: "Hip-Hop / Jazz", cover: "images/nujabesModalSoul.jpg", link: "https://youtu.be/8iP3J8jFYdM?si=snDMWgrDUltNpgHm", dateAdded: "2023-12-05", year: 2005, rating: 0, playCount: 0, isFavorite: false },
-    { id: 4, title: "Nevermind", artist: "Nirvana", genre: "Alternative Rock", cover: "images/nNEVERMIND.webp", link: "https://www.youtube.com/watch?v=EwENfTvSQbQ&list=RDEwENfTvSQbQ&start_radio=1", dateAdded: "2024-01-20", year: 1991, rating: 0, playCount: 0, isFavorite: false },
-    { id: 5, title: "Since I Left You", artist: "The Avalanches", genre: "Electronic", cover: "images/theAvalanchesSILY.jpg", link: "https://www.youtube.com/watch?v=TyOfYE5cqNk&list=PLVxakxoWul5V3M8awBfeQnboZN_fqkEPS&index=1", dateAdded: "2023-10-01", year: 2000, rating: 0, playCount: 0, isFavorite: false },
-    { id: 6, title: "Merriweather Post Pavilion", artist: "Animal Collective", genre: "Psychedelic Pop", cover: "images/animalCollectiveMPP.png", link: "https://www.youtube.com/watch?v=Ebmp2YMIr9s&list=OLAK5uy_lq6ZY8GSCQhbG7Z6cr-rw5EL9CQ54CdSs", dateAdded: "2023-10-01", year: 2009, rating: 0, playCount: 0, isFavorite: false },
-    { id: 7, title: "Channel Orange", artist: "Frank Ocean", genre: "R&B / Soul", cover: "images/frankOceanChannelOrange.jpg", link: "https://www.youtube.com/watch?v=xEQ_946TO_g&list=OLAK5uy_mAGTQmYeosOR-Pp17OnnzkKHPeEbzSFOg", dateAdded: "2023-10-01", year: 2012, rating: 0, playCount: 0, isFavorite: false },
-    { id: 8, title: "Late Registration", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyeWestLateRegistration.jpg", link: "https://www.youtube.com/watch?v=14Ef5mb2qhc&list=PLAn-T5fEM_WC7RUX39PezdMp8Qlo-oiMh", dateAdded: "2023-10-01", year: 2005, rating: 0, playCount: 0, isFavorite: false },
-    { id: 9, title: "The Life of Pablo", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyeWestTheLifeOfPablo.jpg", link: "https://www.youtube.com/watch?v=6oHdAA3AqnE&list=PLzMq4yH_FvVac_1R0DMcMkcwnJ1-hFx6b", dateAdded: "2023-10-01", year: 2016, rating: 0, playCount: 0, isFavorite: false },
-    { id: 10, title: "The College Dropout", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyeWestTheCollegeDropout.jpg", link: "https://www.youtube.com/watch?v=OTZzjAU0Kg0&list=PLTfO7IRJ-B3BKFN93H4G9D9lyklswLNtX", dateAdded: "2023-10-01", year: 2004, rating: 0, playCount: 0, isFavorite: false },
-    { id: 11, title: "Harry's House", artist: "Harry Styles", genre: "Pop", cover: "images/harryStylesHarrysHouse.png", link: "https://www.youtube.com/playlist?list=PLo9rTk1CYUkWnkltbLGVXzBDM_k0vx_A_", dateAdded: "2023-10-01", year: 2022, rating: 0, playCount: 0, isFavorite: false },
-    { id: 12, title: "My Beautiful Dark Twisted Fantasy", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyeWestMyBeautifulDarkTwistedFantasy.jpg", link: "https://www.youtube.com/watch?v=UTH1VNHLjng&list=PLzMq4yH_FvVa5kPgtKmgdzPssfmBUtO2C&index=1", dateAdded: "2023-10-01", year: 2010, rating: 0, playCount: 0, isFavorite: false },
-    { id: 13, title: "Pet Sounds", artist: "The Beach Boys", genre: "Rock / Pop", cover: "images/theBeachBoysPetSounds.jpg", link: "https://www.youtube.com/playlist?list=OLAK5uy_mJN3N2XYKY6P2RpKP_-Zk20HwDSewNAYY&playnext=1&index=1", dateAdded: "2023-10-01", year: 1966, rating: 0, playCount: 0, isFavorite: false },
-    { id: 14, title: "Discovery", artist: "Daft Punk", genre: "Electronic", cover: "images/daftPunkDiscovery.png", link: "https://www.youtube.com/watch?v=zKSsP2084nU&list=PLZv6xnm6clDYZuo0W2a2nqH0_iygXF79C", dateAdded: "2023-10-01", year: 2001, rating: 0, playCount: 0, isFavorite: false },
-    { id: 15, title: "Random Access Memories", artist: "Daft Punk", genre: "Electronic", cover: "images/daftPunkRandomAccessMemories.png", link: "https://www.youtube.com/watch?v=IluRBvnYMoY&list=OLAK5uy_kL8Foly6phCoLmgSWTPjgZsbAne85xMMM", dateAdded: "2023-10-01", year: 2013, rating: 0, playCount: 0, isFavorite: false },
-    { id: 16, title: "Blonde", artist: "Frank Ocean", genre: "R&B / Soul", cover: "images/frankOceanBlonde.jpeg", link: "https://www.youtube.com/watch?v=fahxSXoXlsA&list=PLDCdjwiC90TGiL_tRVbJLerxjNqFz7of2", dateAdded: "2023-10-01", year: 2016, rating: 0, playCount: 0, isFavorite: false },
-    { id: 17, title: "Little Dark Age", artist: "MGMT", genre: "Synthpop / Indie", cover: "images/mgmtMyLittleDarkAge.png", link: "https://www.youtube.com/watch?v=e0QT4N-5PA4&list=OLAK5uy_kBFHQWSR3V3RPeRDSA1JKl_HpHDVgYYEA", dateAdded: "2023-10-01", year: 2018, rating: 0, playCount: 0, isFavorite: false },
-    { id: 18, title: "Skiptracing", artist: "Mild High Club", genre: "Psychedelic Pop", cover: "images/mildHighClubSkiptracing.jpg", link: "https://www.youtube.com/watch?v=iXehtTIgjrw&list=PLbJ3VMmxqdGWc9G4n3W6o_KFjoLTc76Nv", dateAdded: "2023-10-01", year: 2016, rating: 0, playCount: 0, isFavorite: false },
-    { id: 19, title: "The Dark Side of the Moon", artist: "Pink Floyd", genre: "Progressive Rock", cover: "images/pinkFloydTheDarkSideOfTheMoon.jpg", link: "https://youtu.be/k9ynZnEBtvw?si=N5mxdypHxa-g6zeC", dateAdded: "2023-10-01", year: 1973, rating: 0, playCount: 0, isFavorite: false },
-    { id: 20, title: "For You", artist: "Tatsuro Yamashita", genre: "City Pop", cover: "images/tatsuroYamashitaForYou.jpg", link: "https://www.dailymotion.com/video/x8mmgeh", dateAdded: "2023-10-01", year: 1982, rating: 0, playCount: 0, isFavorite: false },
-    { id: 21, title: "Floral Shoppe", artist: "Macintosh Plus", genre: "Vapor Wave", cover: "images/macintoshPlusFloralShoppe.jpg", link: "https://www.youtube.com/watch?si=gDjl1JOb0qDrdq30&t=1&v=cCq0P509UL4&feature=youtu.be", dateAdded: "2023-10-01", year: 2011, rating: 0, playCount: 0, isFavorite: false },
-    { id: 22, title: "Shinbangumi", artist: "Ginger Root", genre: "City Pop", cover: "images/gingerRootShinbangumi.jpg", link: "https://www.youtube.com/watch?v=3GRXCLYibBg&list=RD3GRXCLYibBg&start_radio=1&t=1s", dateAdded: "2023-10-01", year: 2021, rating: 0, playCount: 0, isFavorite: false },
-    { id: 23, title: "Speaking In Tongues", artist: "Talking Heads", genre: "New Wave", cover: "images/talkingHeadsSpeakingInTongues.jpg", link: "https://www.youtube.com/watch?v=4c_YkN-8WRM", dateAdded: "2023-10-01", year: 1983, rating: 0, playCount: 0, isFavorite: false },
-    { id: 24, title: "You Will Never Know Why", artist: "Sweet Trip", genre: "Indie pop", cover: "images/SweetTripYouWillNeverKnowWhy.jpg", link: "https://www.youtube.com/watch?v=MSq0gOJ9AGA", dateAdded: "2023-10-01", year: 2009, rating: 0, playCount: 0, isFavorite: false },
+ 1. INITIAL SETUP & DATA
+ ========================= */
+
+// Audio setup
+const vinylSound = new Audio('sounds/vinyl-scratch.mp3');
+vinylSound.volume = 0.3; 
+
+// Initial Album Data (Used if no data is found in localStorage)
+const initialAlbums = [
+  { id: 1, title: "Donuts", artist: "J Dilla", genre: "Hip-Hop", cover: "images/Dilladonuts.jpg", link: "https://youtu.be/crZF0YNORIY?start=0", dateAdded: "2023-10-01", year: 2006, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 2, title: "Graduation", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyWestGraduation.jpg", link: "https://www.youtube.com/watch?v=rr3p8qy1X-g&list=PLg4d8d95_7w1d6J3r4qJ1jL8k0l2l0d2W&start=0", dateAdded: "2023-11-15", year: 2007, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 3, title: "Modal Soul", artist: "Nujabes", genre: "Hip-Hop / Jazz", cover: "images/nujabesModalSoul.jpg", link: "https://youtu.be/8iP3J8jFYdM?list=PL44C3FDE92D95F74D&start=0", dateAdded: "2023-12-05", year: 2005, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 4, title: "Nevermind", artist: "Nirvana", genre: "Alternative Rock", cover: "images/nNEVERMIND.webp", link: "https://www.youtube.com/watch?v=EwENfTvSQbQ&list=RDEwENfTvSQbQ&start_radio=1&start=0", dateAdded: "2024-01-20", year: 1991, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 5, title: "Since I Left You", artist: "The Avalanches", genre: "Electronic", cover: "images/theAvalanchesSILY.jpg", link: "https://www.youtube.com/watch?v=TyOfYE5cqNk&list=PLVxakxoWul5V3M8awBfeQnboZN_fqkEPS&index=1&start=0", dateAdded: "2023-10-01", year: 2000, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 6, title: "Merriweather Post Pavilion", artist: "Animal Collective", genre: "Psychedelic Pop", cover: "images/animalCollectiveMPP.png", link: "https://www.youtube.com/watch?v=Ebmp2YMIr9s&list=OLAK5uy_lq6ZY8GSCQhbG7Z6cr-rw5EL9CQ54CdSs&start=0", dateAdded: "2023-10-01", year: 2009, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 7, title: "Channel Orange", artist: "Frank Ocean", genre: "R&B / Soul", cover: "images/frankOceanChannelOrange.jpg", link: "https://www.youtube.com/watch?v=xEQ_946TO_g&list=OLAK5uy_mAGTQmYeosOR-Pp17OnnzkKHPeEbzSFOg&start=0", dateAdded: "2023-10-01", year: 2012, rating: 0, playCount: 7, isFavorite: false, lastPlayed: "2024-11-22T14:30:00.000Z", userNotes: {}, communityNotes: [] }, 
+  { id: 8, title: "Late Registration", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyeWestLateRegistration.jpg", link: "https://www.youtube.com/watch?v=14Ef5mb2qhc&list=PLAn-T5fEM_WC7RUX39PezdMp8Qlo-oiMh&start=0", dateAdded: "2023-10-01", year: 2005, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 9, title: "The Life of Pablo", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyeWestTheLifeOfPablo.jpg", link: "https://www.youtube.com/watch?v=6oHdAA3AqnE&list=PLzMq4yH_FvVac_1R0DMcMkcwnJ1-hFx6b&start=0", dateAdded: "2023-10-01", year: 2016, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 10, title: "The College Dropout", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyeWestTheCollegeDropout.jpg", link: "https://www.youtube.com/watch?v=OTZzjAU0Kg0&list=PLTfO7IRJ-B3BKFN93H4G9D9lyklswLNtX&start=0", dateAdded: "2023-10-01", year: 2004, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 11, title: "Harry's House", artist: "Harry Styles", genre: "Pop", cover: "images/harryStylesHarrysHouse.png", link: "https://www.youtube.com/playlist?list=PLo9rTk1CYUkWnkltbLGVXzBDM_k0vx_A_&start=0", dateAdded: "2023-10-01", year: 2022, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 12, title: "My Beautiful Dark Twisted Fantasy", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyeWestMyBeautifulDarkTwistedFantasy.jpg", link: "https://www.youtube.com/watch?v=UTH1VNHLjng&list=PLzMq4yH_FvVa5kPgtKmgdzPssfmBUtO2C&index=1&start=0", dateAdded: "2023-10-01", year: 2010, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 13, title: "Pet Sounds", artist: "The Beach Boys", genre: "Rock / Pop", cover: "images/theBeachBoysPetSounds.jpg", link: "https://www.youtube.com/playlist?list=OLAK5uy_mJN3N2XYKY6P2RpKP_-Zk20HwDSewNAYY&playnext=1&index=1&start=0", dateAdded: "2023-10-01", year: 1966, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 14, title: "Discovery", artist: "Daft Punk", genre: "Electronic", cover: "images/daftPunkDiscovery.png", link: "https://www.youtube.com/watch?v=zKSsP2084nU&list=PLZv6xnm6clDYZuo0W2a2nqH0_iygXF79C&start=0", dateAdded: "2023-10-01", year: 2001, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 15, title: "Random Access Memories", artist: "Daft Punk", genre: "Electronic", cover: "images/daftPunkRandomAccessMemories.png", link: "https://www.youtube.com/watch?v=IluRBvnYMoY&list=OLAK5uy_kL8Foly6phCoLmgSWTPjgZsbAne85xMMM&start=0", dateAdded: "2023-10-01", year: 2013, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 16, title: "Blonde", artist: "Frank Ocean", genre: "R&B / Soul", cover: "images/frankOceanBlonde.jpeg", link: "https://www.youtube.com/watch?v=fahxSXoXlsA&list=PLDCdjwiC90TGiL_tRVbJLerxjNqFz7of2&start=0", dateAdded: "2023-10-01", year: 2016, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 17, title: "Little Dark Age", artist: "MGMT", genre: "Synthpop / Indie", cover: "images/mgmtMyLittleDarkAge.png", link: "https://www.youtube.com/watch?v=e0QT4N-5PA4&list=OLAK5uy_kBFHQWSR3V3RPeRDSA1JKl_HpHDVgYYEA&start=0", dateAdded: "2023-10-01", year: 2018, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 18, title: "Skiptracing", artist: "Mild High Club", genre: "Psychedelic Pop", cover: "images/mildHighClubSkiptracing.jpg", link: "https://www.youtube.com/watch?v=iXehtTIgjrw&list=PLbJ3VMmxqdGWc9G4n3W6o_KFjoLTc76Nv&start=0", dateAdded: "2023-10-01", year: 2016, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 19, title: "The Dark Side of the Moon", artist: "Pink Floyd", genre: "Progressive Rock", cover: "images/pinkFloydTheDarkSideOfTheMoon.jpg", link: "https://youtu.be/k9ynZnEBtvw?list=PL23C32F062E10978C&start=0", dateAdded: "2023-10-01", year: 1973, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 20, title: "For You", artist: "Tatsuro Yamashita", genre: "City Pop", cover: "images/tatsuroYamashitaForYou.jpg", link: "https://www.dailymotion.com/video/x8mmgeh", dateAdded: "2023-10-01", year: 1982, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 21, title: "Floral Shoppe", artist: "Macintosh Plus", genre: "Vapor Wave", cover: "images/macintoshPlusFloralShoppe.jpg", link: "https://www.youtube.com/watch?v=cCq0P509UL4&start=0", dateAdded: "2023-10-01", year: 2011, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 22, title: "Shinbangumi", artist: "Ginger Root", genre: "City Pop", cover: "images/gingerRootShinbangumi.jpg", link: "https://www.youtube.com/watch?v=3GRXCLYibBg&list=RD3GRXCLYibBg&start_radio=1&start=0", dateAdded: "2023-10-01", year: 2021, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 23, title: "Speaking In Tongues", artist: "Talking Heads", genre: "New Wave", cover: "images/talkingHeadsSpeakingInTongues.jpg", link: "https://www.youtube.com/watch?v=4c_YkN-8WRM&start=0", dateAdded: "2023-10-01", year: 1983, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
+  { id: 24, title: "You Will Never Know Why", artist: "Sweet Trip", genre: "Indie pop", cover: "images/SweetTripYouWillNeverKnowWhy.jpg", link: "https://www.youtube.com/watch?v=MSq0gOJ9AGA&start=0", dateAdded: "2023-10-01", year: 2009, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
 ];
 
+// The actual array we will work with (will be overwritten by localStorage)
+let albums = []; 
+
 /* =========================
-   2. ELEMENT REFS & STATE
-   ========================= */
+ 2. ELEMENT REFS & STATE
+ ========================= */
 const albumContainer = document.getElementById("albumContainer");
 const searchBar = document.getElementById('searchBar');
 const sortDropdown = document.getElementById('sortDropdown');
 const favoritesFilterBtn = document.getElementById('favoritesFilterBtn');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const genreFiltersContainer = document.getElementById('genreFilters');
+const vibeTagFiltersContainer = document.getElementById('vibeTagFilters'); 
 const randomPickBtn = document.getElementById("randomPickBtn");
+const modal = document.getElementById('albumModal');
+const queueModal = document.getElementById('queueModal'); 
+const queueDisplay = document.getElementById('queueDisplay');
+const queueListEl = document.getElementById('queueList'); 
+
+// REFACTORED: Submission modal is now used for both Add and Edit
+const submissionModal = document.getElementById('submissionModal'); 
+const submissionForm = document.getElementById('submissionForm');
+const openAddAlbumModalBtn = document.getElementById('openAddAlbumModalBtn');
+
 
 let currentSort = 'title';
 let currentGenreFilter = 'all';
+let currentVibeTagFilter = 'all';
 let showFavoritesOnly = false;
+let currentlyPlayingAlbumTitle = null; 
+let albumQueue = []; // Array to hold album objects in the queue order
 
-/* maps for per-panel outside click handlers and auto-close timers */
-const panelOutsideHandlerMap = new WeakMap();
-const panelAutoCloseTimerMap = new WeakMap();
+// Data Structures
+const userNotesData = {}; // Stores user-specific notes (private)
+
+// FAKE COMMUNITY DATA: Simulated community notes for demonstration
+const communityNotesCollection = {
+    "Donuts": [
+        { user: "Anonymous-1", text: "A legendary album! Perfect background music for coding.", timestamp: "2024-11-18T10:00:00Z" },
+        { user: "Lo-Fi_Lover", text: "I really loved this album, thanks for the recommendation. Essential listening.", timestamp: "2024-11-20T15:30:00Z" }
+    ],
+    "Nevermind": [
+        { user: "RockFanatic", text: "Smells Like Teen Spirit is iconic, obviously.", timestamp: "2024-09-01T12:00:00Z" }
+    ]
+};
+
 
 /* =========================
-   3. PERSISTENCE
-   ========================= */
+ 3. PERSISTENCE
+ ========================= */
+
+/**
+ * Saves ALL album data (including new albums) to localStorage.
+ */
 function saveAlbumData() {
-    const mutable = albums.map(a => ({
-        title: a.title,
-        rating: a.rating ?? 0,
-        playCount: a.playCount ?? 0,
-        isFavorite: a.isFavorite ?? false
-    }));
-    localStorage.setItem('albumMutableData', JSON.stringify(mutable));
-    calculateStats();
+    // Save the ENTIRE current albums array (including new albums and mutable stats)
+    localStorage.setItem('albumCollection', JSON.stringify(albums)); 
+
+    // Save queue order explicitly
+    const queueTitles = albumQueue.map(a => a.title);
+    localStorage.setItem('albumQueueOrder', JSON.stringify(queueTitles));
+
+  calculateStats();
+    updateQueueDisplay();
 }
 
+/**
+ * Saves all user-specific structured notes into a single localStorage entry.
+ */
+function saveUserNotesData() {
+    const toSave = {};
+    for (const title in userNotesData) {
+        if (userNotesData[title].text || userNotesData[title].favoriteTrack || userNotesData[title].vibeTags.length > 0) {
+            toSave[title] = userNotesData[title];
+        }
+    }
+    localStorage.setItem('userStructuredNotes', JSON.stringify(toSave));
+}
+
+/**
+ * Loads entire collection, notes data, and reconstructs the queue.
+ */
 function loadAlbumData() {
-    const saved = localStorage.getItem('albumMutableData');
-    if (!saved) return;
-    try {
-        const parsed = JSON.parse(saved);
-        parsed.forEach(savedAlbum => {
-            const idx = albums.findIndex(a => a.title === savedAlbum.title);
-            if (idx !== -1) {
-                albums[idx].rating = parseInt(savedAlbum.rating || 0, 10);
-                albums[idx].playCount = parseInt(savedAlbum.playCount || 0, 10);
-                albums[idx].isFavorite = savedAlbum.isFavorite === true;
-            }
-        });
-    } catch (err) {
-        console.warn('Failed loading albumMutableData', err);
+    // 1. Load THE ENTIRE COLLECTION from localStorage first
+    const savedCollection = localStorage.getItem('albumCollection');
+    if (savedCollection) {
+        try {
+            albums = JSON.parse(savedCollection);
+        } catch (err) {
+            console.error('Failed loading albumCollection. Using initial data.', err);
+            albums = initialAlbums;
+        }
+    } else {
+        // If no collection saved yet, use the initial hardcoded data
+        albums = initialAlbums; 
     }
+    
+    // 2. Load queue order
+    const savedQueueOrder = localStorage.getItem('albumQueueOrder');
+    albumQueue = []; // Reset queue
+    if (savedQueueOrder) {
+        try {
+            const queueTitles = JSON.parse(savedQueueOrder);
+            queueTitles.forEach(title => {
+                const album = albums.find(a => a.title === title);
+                if (album && !albumQueue.some(a => a.title === title)) {
+                    album.isQueue = true;
+                    albumQueue.push(album);
+                }
+            });
+        } catch (err) {
+            console.warn('Failed loading albumQueueOrder', err);
+        }
+    }
+
+
+    // 3. Load user-specific structured notes
+    loadUserNotesData();
+    
+    // 4. Simulate loading community notes
+    albums.forEach(album => {
+        // Assign the simulated community data
+        album.communityNotes = communityNotesCollection[album.title] || []; 
+    });
 }
+
+/**
+ * Loads user-specific structured notes.
+ */
+function loadUserNotesData() {
+    const savedStructured = localStorage.getItem('userStructuredNotes');
+    let loadedNotes = {};
+    if (savedStructured) {
+        try {
+            loadedNotes = JSON.parse(savedStructured);
+        } catch (err) {
+            console.warn('Failed loading userStructuredNotes', err);
+        }
+    }
+
+    albums.forEach(album => {
+        // Initialize with defaults if not loaded
+        let notes = loadedNotes[album.title] || { text: '', favoriteTrack: '', vibeTags: [] };
+        
+        album.userNotes = notes; 
+        userNotesData[album.title] = notes;
+    });
+}
+
 
 /* =========================
-   4. RENDER HELPERS
-   ========================= */
-function renderStars(rating) {
-    let html = '';
-    for (let i = 1; i <= 5; i++) {
-        const starClass = i <= rating ? 'fa-solid' : 'fa-regular';
-        html += `<i class="fa-star star-icon ${starClass}" data-rating="${i}"></i>`;
-    }
-    return html;
+ 4. RENDER & UTILITY HELPERS
+ ========================= */
+
+// Global utility to get a unique ID for new albums
+function getNextAlbumId() {
+    return albums.reduce((maxId, album) => Math.max(maxId, album.id), 0) + 1;
 }
 
-/* escape minimal HTML for content coming from dataset */
+/**
+ * Extracts the YouTube video/playlist ID and type from various URL formats.
+ */
+function getYouTubeData(url) {
+    if (!url || url.includes('dailymotion')) return { id: null, type: null, embedSrc: null }; 
+    
+    // Check for Playlist ID first
+    const playlistMatch = url.match(/[?&]list=([^&]+)/);
+    if (playlistMatch && playlistMatch[1]) {
+        return { 
+            id: playlistMatch[1], 
+            type: 'playlist',
+            embedSrc: `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistMatch[1]}&autoplay=1`
+        };
+    }
+
+    // Check for standard video ID
+    const videoMatch = url.match(/(?:youtu\.be\/|v=|embed\/)([^#&?]*)/);
+    if (videoMatch && videoMatch[1]) {
+        return { 
+            id: videoMatch[1], 
+            type: 'video',
+            embedSrc: `https://www.youtube-nocookie.com/embed/${videoMatch[1]}?controls=1&autoplay=1`
+        };
+    }
+
+    return { id: null, type: null, embedSrc: null };
+}
+
+// Renders the 5-star rating HTML
+function renderStars(rating, albumTitle) {
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    const starClass = i <= rating ? 'fa-solid' : 'fa-regular';
+    html += `<i class="fa-star star-icon ${starClass}" data-rating="${i}" data-album-title="${escapeHtml(albumTitle)}"></i>`;
+  }
+  return html;
+}
+
+// Basic HTML escaping for dynamic content
 function escapeHtml(s = '') {
-    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
 }
 
+
+/**
+ * Renders the main album card HTML.
+ */
 function createAlbumCardHTML(album) {
-    const favClass = album.isFavorite ? 'fa-solid' : 'fa-regular';
-    const savedNotes = localStorage.getItem(`notes-${album.title}`) || '';
-    return `
-    <div class="album-card" data-title="${escapeHtml(album.title)}">
-      <img class="album-cover" src="${album.cover}" alt="${escapeHtml(album.title)} cover">
-      <h3 class="album-title">${escapeHtml(album.title)}</h3>
-      <p class="album-artist">${escapeHtml(album.artist)}</p>
-      <p class="album-genre" style="font-size:0.8rem;color:var(--text-secondary)">${escapeHtml(album.genre)}</p>
+  const favClass = album.isFavorite ? 'fa-solid' : 'fa-regular';
+    const isPlayingClass = album.title === currentlyPlayingAlbumTitle ? ' is-playing' : ''; 
+    const isQueueClass = albumQueue.some(a => a.title === album.title) ? ' in-queue' : ''; 
+    const youtubeData = getYouTubeData(album.link);
+    const embedIcon = youtubeData.type === 'playlist' ? 'fa-list-music' : 'fa-compact-disc';
+    const embedDisabled = !youtubeData.id ? 'disabled' : '';
 
-      <div class="rating-play-controls">
-        <div class="rating-display-group">
-          <p class="play-count"><i class="fas fa-headphones"></i> ${album.playCount || 0}</p>
-          <div class="rating-container" data-album-title="${escapeHtml(album.title)}">${renderStars(album.rating)}</div>
+  return `
+  <div class="album-card${isPlayingClass}" data-title="${escapeHtml(album.title)}" data-id="${album.id}">
+   <img class="album-cover" src="${album.cover}" alt="${escapeHtml(album.title)} cover" data-action="open-modal">
+   
+   <div class="album-info-group">
+         <h3 class="album-title">${escapeHtml(album.title)}</h3>
+         <p class="album-artist">${escapeHtml(album.artist)}</p>
+         <p class="album-genre" style="font-size:0.8rem;color:var(--text-secondary)">
+              Genre: <span class="interactive-genre-tag" data-genre="${escapeHtml(album.genre)}">${escapeHtml(album.genre)}</span>
+          </p>
         </div>
-        <!-- heart increased 33% (1.75rem) -->
-        <i class="${favClass} fa-heart favorite-icon" data-album-title="${escapeHtml(album.title)}" style="font-size:1.75rem;"></i>
-      </div>
 
-      <div class="card-bottom-controls">
-        <a class="album-link vinyl" href="${album.link}" target="_blank" rel="noopener noreferrer">
-          <i class="fa-solid fa-record-vinyl"></i> Listen
-        </a>
-        <button class="notes-btn" data-album-title="${escapeHtml(album.title)}">Notes</button>
-      </div>
-
-      <div class="notes-section" aria-hidden="true">
-        <textarea class="notes-textarea" data-album-title="${escapeHtml(album.title)}" placeholder="Add your notes...">${escapeHtml(savedNotes)}</textarea>
-        <button class="notes-save-btn">Save</button>
-        <p class="notes-confirmation">Notes saved!</p>
-        <div class="char-counter" style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px;">Characters: ${savedNotes.length}</div>
-      </div>
+   <div class="rating-play-controls">
+    <div class="rating-display-group">
+     <p class="play-count"><i class="fas fa-record-vinyl"></i> ${album.playCount || 0}</p>
+     <div class="rating-container" data-album-title="${escapeHtml(album.title)}">${renderStars(album.rating, album.title)}</div>
     </div>
-    `;
+    <i class="${favClass} fa-heart favorite-icon" data-album-title="${escapeHtml(album.title)}" style="font-size:1.75rem;"></i>
+   </div>
+
+   <div class="card-bottom-controls">
+    <button class="album-embed-btn" data-action="toggle-embed" data-link="${album.link}" ${embedDisabled}>
+     <i class="fa-solid ${embedIcon}"></i> Play
+    </button>
+        <button class="queue-btn${isQueueClass}" data-action="toggle-queue" data-album-title="${escapeHtml(album.title)}">
+            <i class="fas fa-forward"></i> ${isQueueClass ? 'In Queue' : 'Queue'}
+        </button>
+   </div>
+  </div>
+  `;
+}
+
+/**
+ * Updates the 'is-playing' class on the album cards and the Now Playing indicator.
+ */
+function updatePlayingState() {
+    const indicator = document.getElementById('nowPlayingIndicator');
+    const titleSpan = document.getElementById('playingAlbumTitle');
+
+    document.querySelectorAll('.album-card').forEach(card => {
+        const title = card.dataset.title;
+        if (title === currentlyPlayingAlbumTitle) {
+            card.classList.add('is-playing');
+        } else {
+            card.classList.remove('is-playing');
+        }
+    });
+
+    if (currentlyPlayingAlbumTitle && indicator && titleSpan) {
+        indicator.style.display = 'block';
+        titleSpan.textContent = currentlyPlayingAlbumTitle;
+    } else if (indicator) {
+        indicator.style.display = 'none';
+    }
+}
+
+/**
+ * Updates the queue summary display in the header.
+ */
+function updateQueueDisplay() {
+    // Recalculate isQueue state based on the albumQueue array
+    albums.forEach(album => {
+        album.isQueue = albumQueue.some(a => a.title === album.title);
+    });
+    
+    if (albumQueue.length > 0) {
+        queueDisplay.innerHTML = `<i class="fas fa-list-ol"></i> Queue: ${albumQueue.length} album${albumQueue.length > 1 ? 's' : ''}`;
+    } else {
+        queueDisplay.innerHTML = `<i class="fas fa-list-ol"></i> Queue is Empty`;
+    }
+    
+    // Update card buttons to reflect queue status
+    document.querySelectorAll('.queue-btn').forEach(btn => {
+        const title = btn.dataset.albumTitle;
+        const inQueue = albumQueue.some(a => a.title === title);
+
+        btn.classList.toggle('in-queue', inQueue);
+        btn.innerHTML = `<i class="fas fa-forward"></i> ${inQueue ? 'In Queue' : 'Queue'}`;
+    });
+    
+    // Update queue modal UI if it's open
+    if (queueModal.classList.contains('active')) {
+        renderQueueList();
+    }
+}
+
+
+// Formats date string (e.g., "2024-11-22T15:00:00.000Z") to a readable format
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date)) return 'N/A';
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// Formats date for community notes
+function formatCommunityDate(dateString) {
+    const date = new Date(dateString);
+    if (isNaN(date)) return 'Unknown Date';
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 }
 
 /* =========================
-   5. FILTER / SORT / DISPLAY
-   ========================= */
-function filterAndSortAlbums() {
-    let list = [...albums];
+ 5. FILTER / SORT / DISPLAY
+ ========================= */
 
-    if (currentGenreFilter !== 'all') {
-        list = list.filter(a => a.genre.toLowerCase().includes(currentGenreFilter.toLowerCase()));
-    }
-    if (showFavoritesOnly) {
-        list = list.filter(a => a.isFavorite);
-    }
-    const searchTerm = searchBar?.value?.toLowerCase() || '';
-    if (searchTerm) {
-        list = list.filter(a =>
-            a.title.toLowerCase().includes(searchTerm) ||
-            a.artist.toLowerCase().includes(searchTerm) ||
-            a.genre.toLowerCase().includes(searchTerm)
-        );
-    }
+function parseAdvancedSearch(query) {
+    const criteria = {
+        general: [],
+        artist: null,
+        year: null,
+        title: null,
+        genre: null,
+        rating: null,
+    };
+    const parts = query.toLowerCase().match(/(\w+:\s*['"]?[\w\s><=-]+['"]?)|([^\s:"]+)/g) || [];
 
-    if (currentSort && currentSort !== 'none') {
-        list.sort((a, b) => {
-            if (currentSort === 'title' || currentSort === 'artist') {
-                return a[currentSort].localeCompare(b[currentSort]);
+    parts.forEach(part => {
+        if (part.includes(':')) {
+            const [key, value] = part.split(':').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+            if (criteria.hasOwnProperty(key)) {
+                criteria[key] = value;
+            } else {
+                criteria.general.push(part);
             }
-            if (currentSort === 'year' || currentSort === 'rating' || currentSort === 'plays') {
-                return (b[currentSort] || 0) - (a[currentSort] || 0);
-            }
-            return 0;
-        });
-    }
+        } else {
+            criteria.general.push(part);
+        }
+    });
 
-    displayFilteredAlbums(list);
+    criteria.generalText = criteria.general.join(' ').trim();
+    return criteria;
 }
 
+function matchesYearCondition(albumYear, yearCriteria) {
+    if (!yearCriteria) return true;
+    
+    const match = yearCriteria.match(/(<=|>=|<|>|=)(\d+)/);
+    if (match) {
+        const operator = match[1];
+        const value = parseInt(match[2], 10);
+        switch (operator) {
+            case '<': return albumYear < value;
+            case '>': return albumYear > value;
+            case '<=': return albumYear <= value;
+            case '>=': return albumYear >= value;
+            case '=': return albumYear === value;
+        }
+    }
+    
+    const yearVal = parseInt(yearCriteria, 10);
+    return !isNaN(yearVal) ? albumYear === yearVal : true;
+}
+
+
+function filterAndSortAlbums() {
+    const searchCriteria = parseAdvancedSearch(searchBar.value);
+    
+    let filtered = albums.filter(a => {
+        const generalSearch = searchCriteria.generalText;
+        const albumGenreList = a.genre.toLowerCase().split(' / ').map(g => g.trim());
+
+        // 1. General Text Search (Title, Artist, Genre, Notes)
+        const matchesGeneral = generalSearch.length === 0 || 
+                               a.title.toLowerCase().includes(generalSearch) || 
+                               a.artist.toLowerCase().includes(generalSearch) ||
+                               a.genre.toLowerCase().includes(generalSearch) ||
+                               a.userNotes.text.toLowerCase().includes(generalSearch) || 
+                               a.userNotes.favoriteTrack.toLowerCase().includes(generalSearch); 
+        
+        // 2. Advanced Search Criteria
+        const matchesArtist = !searchCriteria.artist || a.artist.toLowerCase().includes(searchCriteria.artist);
+        const matchesTitle = !searchCriteria.title || a.title.toLowerCase().includes(searchCriteria.title);
+        const matchesYear = !searchCriteria.year || matchesYearCondition(a.year, searchCriteria.year);
+        const matchesSearchCriteria = matchesGeneral && matchesArtist && matchesTitle && matchesYear;
+
+        // 3. Genre Button Filter
+        const matchesGenre = currentGenreFilter === 'all' || albumGenreList.includes(currentGenreFilter);
+        
+        // 4. Vibe Tag Filter 
+        const albumVibeTags = a.userNotes.vibeTags.map(tag => tag.toLowerCase()); 
+        const matchesVibeTag = currentVibeTagFilter === 'all' || albumVibeTags.includes(currentVibeTagFilter);
+
+        // 5. Favorites Filter
+        const matchesFavorite = !showFavoritesOnly || a.isFavorite;
+
+        return matchesSearchCriteria && matchesGenre && matchesVibeTag && matchesFavorite;
+    });
+
+    // Handle sorting
+    filtered.sort((a, b) => {
+        switch (currentSort) {
+            case 'title':
+                return a.title.localeCompare(b.title);
+            case 'artist':
+                return a.artist.localeCompare(b.artist);
+            case 'year':
+                return b.year - a.year; 
+            case 'rating':
+                return (b.rating || 0) - (a.rating || 0); 
+            case 'dateAdded':
+                return new Date(b.dateAdded) - new Date(a.dateAdded); 
+            case 'playCount':
+                return (b.playCount || 0) - (a.playCount || 0);
+            case 'lastPlayed': 
+                const dateA = a.lastPlayed ? new Date(a.lastPlayed) : new Date(0); 
+                const dateB = b.lastPlayed ? new Date(b.lastPlayed) : new Date(0);
+                return dateB - dateA; 
+            default:
+                return 0;
+        }
+    });
+
+    displayFilteredAlbums(filtered);
+}
+
+
+// Clears and re-renders the album grid
 function displayFilteredAlbums(list) {
-    if (!albumContainer) return;
-    if (!list.length) {
-        albumContainer.innerHTML = "<p style='grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:2rem;'>No albums found matching your criteria.</p>";
+  if (!albumContainer) return;
+  if (!list.length) {
+    albumContainer.innerHTML = "<p style='grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:2rem;'>No albums found matching your criteria.</p>";
+    return;
+  }
+  albumContainer.innerHTML = list.map(createAlbumCardHTML).join('');
+    updatePlayingState(); 
+    updateQueueDisplay();
+}
+
+
+/* =========================
+ 6. MODAL & NOTES MANAGEMENT
+ ========================= */
+
+// Renders the tags for the modal
+function createModalTagsHTML(album) {
+    const albumNoteData = userNotesData[album.title] || { vibeTags: [] };
+    const availableTags = ['Chill', 'Hype', 'Lo-Fi', 'Ambient', 'Classic', 'Focus', 'Dance', 'Loud'];
+
+    return availableTags.map(tag => {
+        const isSelected = albumNoteData.vibeTags.includes(tag);
+        return `<span class="tag-chip${isSelected ? ' selected' : ''}" data-tag="${tag}">${tag}</span>`;
+    }).join('');
+}
+
+// Renders the community notes section
+function renderCommunityNotes(album) {
+    const notes = album.communityNotes || [];
+    const logEl = document.getElementById('communityNotesLog');
+    
+    if (notes.length === 0) {
+        logEl.innerHTML = "<p style='font-style:italic;color:var(--text-secondary);'>Be the first to leave an annotation on this album!</p>";
         return;
     }
-    albumContainer.innerHTML = list.map(createAlbumCardHTML).join('');
+    
+    logEl.innerHTML = notes.map(note => `
+        <div class="community-note-item">
+            <div class="community-note-meta">
+                <span><i class="fas fa-user-circle"></i> ${escapeHtml(note.user)}</span>
+                <span>${formatCommunityDate(note.timestamp)}</span>
+            </div>
+            <p class="community-note-text">${escapeHtml(note.text)}</p>
+        </div>
+    `).join('');
 }
 
-/* =========================
-   6. NOTES PANEL (Option B)
-   - Clicking Notes ALWAYS opens panel
-   - Auto-close saved panel after 2.5s
-   - Close panel if clicking outside it
-   ========================= */
+/**
+ * Populates and opens the full-screen modal.
+ */
+function openAlbumModal(album) {
+    // Populate static info
+    document.getElementById('modalCover').src = album.cover;
+    document.getElementById('modalCover').alt = album.title;
+    document.getElementById('modalTitle').textContent = album.title;
+    document.getElementById('modalArtist').textContent = album.artist;
+    document.getElementById('modalYear').textContent = `Year: ${album.year}`;
+    
+    const modalGenreTag = document.getElementById('modalGenre');
+    modalGenreTag.textContent = album.genre;
+    modalGenreTag.dataset.genre = album.genre;
+    
+    document.getElementById('modalPlayCount').textContent = album.playCount || 0;
+    document.querySelector('#modalLastPlayed span').textContent = formatDate(album.lastPlayed);
 
-function openNotesPanel(panel) {
-    if (!panel) return;
-    // clear any previous timer for this panel
-    clearPanelAutoClose(panel);
+    const ratingContainer = document.getElementById('modalRating');
+    ratingContainer.innerHTML = renderStars(album.rating, album.title);
 
-    panel.classList.add('active');
-    panel.setAttribute('aria-hidden', 'false');
+    const embedBtn = document.getElementById('modalEmbedBtn');
+    embedBtn.dataset.link = album.link;
+    embedBtn.dataset.albumTitle = album.title;
+    embedBtn.innerHTML = `<i class="fa-solid ${getYouTubeData(album.link).type === 'playlist' ? 'fa-list-music' : 'fa-compact-disc'}"></i> Play Album`;
 
-    // register outside-click handler for this panel (only once)
-    if (!panelOutsideHandlerMap.has(panel)) {
-        const handler = (e) => {
-            if (!panel.contains(e.target)) {
-                closeNotesPanel(panel);
-                document.removeEventListener('mousedown', handler);
-                panelOutsideHandlerMap.delete(panel);
+    const queueBtn = document.getElementById('modalQueueBtn');
+    queueBtn.dataset.albumTitle = album.title;
+    const inQueue = albumQueue.some(a => a.title === album.title);
+    queueBtn.innerHTML = inQueue ? '<i class="fas fa-forward"></i> Remove from Queue' : '<i class="fas fa-forward"></i> Add to Queue';
+    queueBtn.classList.toggle('control-btn', !inQueue);
+    queueBtn.classList.toggle('primary-btn', inQueue);
+    
+    // NEW: Set Album ID on the Edit Button
+    document.getElementById('modalEditBtn').dataset.albumId = album.id;
+
+
+    // Populate User Notes Section
+    const userNotes = userNotesData[album.title];
+    const notesTextarea = document.getElementById('modalNotesText');
+    const charCounter = document.getElementById('modalCharCounter');
+    
+    document.getElementById('modalFavTrack').value = userNotes.favoriteTrack;
+    notesTextarea.value = userNotes.text;
+    charCounter.textContent = `Characters: ${userNotes.text.length}`;
+    
+    const tagsContainer = document.getElementById('modalTagsContainer');
+    tagsContainer.innerHTML = createModalTagsHTML(album);
+
+    // Populate Community Notes Section
+    renderCommunityNotes(album);
+    document.getElementById('newCommunityNote').value = ''; 
+
+    // Set album title for save button context
+    document.getElementById('modalSaveBtn').dataset.albumTitle = album.title;
+    document.getElementById('addCommunityNoteBtn').dataset.albumTitle = album.title;
+    
+    // Show the modal
+    modal.classList.add('active');
+}
+
+/**
+ * Closes the full-screen album modal.
+ */
+function closeAlbumModal() {
+    modal.classList.remove('active');
+    document.getElementById('modalConfirmation').classList.remove('visible');
+}
+
+// Global delegated handler for album modal interactions
+modal.addEventListener('click', (e) => {
+    const target = e.target;
+    const albumTitle = target.closest('.modal-content')?.querySelector('#modalSaveBtn')?.dataset.albumTitle;
+    const album = albums.find(a => a.title === albumTitle);
+    const action = target.dataset.action || target.closest('button')?.dataset.action;
+
+    if (action === 'close-modal') {
+        closeAlbumModal();
+        return;
+    }
+    
+    if (!album) return;
+
+    if (action === 'embed') {
+        toggleAlbumEmbed(null, album.link, album);
+        closeAlbumModal();
+        return;
+    }
+
+    if (action === 'queue') {
+        toggleQueue(album);
+        openAlbumModal(album); 
+        return;
+    }
+    
+    // NEW: Open Edit Modal from Detail Modal
+    if (target.id === 'modalEditBtn') {
+        const albumId = parseInt(target.dataset.albumId, 10);
+        const albumToEdit = albums.find(a => a.id === albumId);
+        if (albumToEdit) {
+            closeAlbumModal(); // Close detail view
+            openEditAlbumModal(albumToEdit);
+        }
+        return;
+    }
+
+    if (target.classList.contains('star-icon')) {
+        const newRating = parseInt(target.dataset.rating, 10);
+        album.rating = album.rating === newRating ? 0 : newRating;
+        saveAlbumData();
+        filterAndSortAlbums(); 
+        document.getElementById('modalRating').innerHTML = renderStars(album.rating, album.title); 
+        return;
+    }
+    
+    if (target.classList.contains('tag-chip')) {
+        const tag = target.dataset.tag;
+        const notes = userNotesData[albumTitle];
+        if (target.classList.contains('selected')) {
+            target.classList.remove('selected');
+            notes.vibeTags = notes.vibeTags.filter(t => t !== tag);
+        } else {
+            if (notes.vibeTags.length < 3) {
+                target.classList.add('selected');
+                notes.vibeTags.push(tag);
             }
-        };
-        panelOutsideHandlerMap.set(panel, handler);
-        document.addEventListener('mousedown', handler);
-    }
-}
-
-function closeNotesPanel(panel) {
-    if (!panel) return;
-    panel.classList.remove('active');
-    panel.setAttribute('aria-hidden', 'true');
-
-    const confirm = panel.querySelector('.notes-confirmation');
-    if (confirm) confirm.classList.remove('visible');
-
-    const handler = panelOutsideHandlerMap.get(panel);
-    if (handler) {
-        document.removeEventListener('mousedown', handler);
-        panelOutsideHandlerMap.delete(panel);
+        }
+        return;
     }
 
-    clearPanelAutoClose(panel);
-}
+    // Save User Notes (Private)
+    if (target.id === 'modalSaveBtn') {
+        const notes = userNotesData[albumTitle];
+        const favTrackInput = document.getElementById('modalFavTrack');
+        const textarea = document.getElementById('modalNotesText');
+        const selectedTagChips = document.getElementById('modalTagsContainer').querySelectorAll('.tag-chip.selected');
+        
+        notes.favoriteTrack = favTrackInput.value.trim();
+        notes.text = textarea.value;
+        notes.vibeTags = Array.from(selectedTagChips).map(chip => chip.dataset.tag);
 
-function schedulePanelAutoClose(panel, ms = 2500) {
-    clearPanelAutoClose(panel);
-    const t = setTimeout(() => {
-        closeNotesPanel(panel);
-        panelAutoCloseTimerMap.delete(panel);
-    }, ms);
-    panelAutoCloseTimerMap.set(panel, t);
-}
+        saveUserNotesData(); 
 
-function clearPanelAutoClose(panel) {
-    const t = panelAutoCloseTimerMap.get(panel);
-    if (t) {
-        clearTimeout(t);
-        panelAutoCloseTimerMap.delete(panel);
+        document.getElementById('modalConfirmation').classList.add('visible');
+        setTimeout(() => document.getElementById('modalConfirmation').classList.remove('visible'), 2500);
+        return;
     }
-}
+    
+    // Post Community Note (Shared)
+    if (target.id === 'addCommunityNoteBtn') {
+        const noteTextarea = document.getElementById('newCommunityNote');
+        const noteText = noteTextarea.value.trim();
 
-/* =========================
-   7. DELEGATED EVENT HANDLING
-   ========================= */
-document.addEventListener('DOMContentLoaded', () => {
-    // initialize state
-    loadAlbumData();
-    initializeDarkMode();
-    renderGenreFilters();
-    calculateStats();
-    pickRandomAlbum();
-    filterAndSortAlbums();
-
-    // album actions (delegated)
-    albumContainer?.addEventListener('click', (e) => {
-        const card = e.target.closest('.album-card');
-        if (!card) return;
-        const albumTitle = card.dataset.title;
-        const album = albums.find(a => a.title === albumTitle);
-        if (!album) return;
-
-        // rating star
-        if (e.target.classList.contains('star-icon')) {
-            const newRating = parseInt(e.target.dataset.rating, 10);
-            album.rating = album.rating === newRating ? 0 : newRating;
-            saveAlbumData();
-            filterAndSortAlbums();
-            return;
+        if (noteText.length > 5) {
+            const newNote = {
+                user: "Current User", 
+                text: noteText,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Note: In a real app, this is where you'd send data to the server
+            album.communityNotes.push(newNote);
+            
+            noteTextarea.value = ''; 
+            renderCommunityNotes(album); 
+        } else {
+            alert("Please enter a longer note (min 6 characters).");
         }
+        return;
+    }
+});
 
-        // favorite heart
-        if (e.target.classList.contains('favorite-icon')) {
-            album.isFavorite = !album.isFavorite;
-            saveAlbumData();
-            filterAndSortAlbums();
-            return;
-        }
-
-        // vinyl listen link
-        if (e.target.closest('.album-link.vinyl')) {
-            album.playCount = (album.playCount || 0) + 1;
-            saveAlbumData();
-            vinylSound.currentTime = 0;
-            vinylSound.play();
-            setTimeout(filterAndSortAlbums, 100);
-            return;
-        }
-
-        // NOTES: clicking 'Notes' always opens (Option B)
-        if (e.target.classList.contains('notes-btn')) {
-            const panel = card.querySelector('.notes-section');
-            openNotesPanel(panel);
-            return;
-        }
-
-        // NOTES SAVE: save for this album and schedule auto-close (2.5s)
-        if (e.target.classList.contains('notes-save-btn')) {
-            const panel = e.target.closest('.notes-section');
-            const textarea = panel.querySelector('.notes-textarea');
-            const confirmation = panel.querySelector('.notes-confirmation');
-            const charCounter = panel.querySelector('.char-counter');
-
-            // persist by title (keeps compatibility with prior code)
-            localStorage.setItem(`notes-${albumTitle}`, textarea.value);
-
-            // show confirmation and update counter
-            confirmation?.classList.add('visible');
-            if (charCounter) charCounter.textContent = `Characters: ${textarea.value.length}`;
-
-            // auto-close this panel after 2.5s
-            schedulePanelAutoClose(panel, 2500);
-            return;
-        }
-    });
-
-    // live char counter for notes
-    albumContainer?.addEventListener('input', (e) => {
-        if (!e.target.classList.contains('notes-textarea')) return;
-        const panel = e.target.closest('.notes-section');
-        const counter = panel.querySelector('.char-counter');
-        if (counter) counter.textContent = `Characters: ${e.target.value.length}`;
-    });
-
-    // external controls
-    searchBar?.addEventListener('input', filterAndSortAlbums);
-
-    sortDropdown?.addEventListener('change', (ev) => {
-        currentSort = ev.target.value;
-        filterAndSortAlbums();
-    });
-
-    randomPickBtn?.addEventListener('click', pickRandomAlbum);
-
-    favoritesFilterBtn?.addEventListener('click', function () {
-        showFavoritesOnly = !showFavoritesOnly;
-        this.classList.toggle('active', showFavoritesOnly);
-        this.innerHTML = showFavoritesOnly ? '<i class="fas fa-times-circle"></i> Hide Favorites' : '<i class="fas fa-heart"></i> Show Favorites';
-        filterAndSortAlbums();
-    });
-
-    darkModeToggle?.addEventListener('click', toggleDarkMode);
+// Character counter for modal notes
+document.getElementById('modalNotesText')?.addEventListener('input', (e) => {
+    document.getElementById('modalCharCounter').textContent = `Characters: ${e.target.value.length}`;
 });
 
 /* =========================
-   8. STATS / RANDOM / DARK MODE
-   (kept your logic; cleaned slightly)
-   ========================= */
-function calculateStats() {
-    const albumCount = albums.length;
-    document.querySelectorAll('#albumCount').forEach(el => el.textContent = albumCount);
-    if (albumCount === 0) return;
+ 7. EMBED & QUEUE MANAGEMENT
+ ========================= */
 
-    const genreCounts = {};
-    albums.forEach(a => {
-        a.genre.split(' / ').forEach(g => {
-            const genre = g.trim();
-            genreCounts[genre] = (genreCounts[genre] || 0) + 1;
-        });
-    });
-
-    const topGenre = Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
-    document.querySelectorAll('#topGenre').forEach(el => el.textContent = topGenre);
-
-    const topAlbum = albums.slice().sort((a, b) => (b.playCount || 0) - (a.playCount || 0))[0];
-    document.querySelectorAll('#topAlbum').forEach(el => el.textContent = topAlbum ? `${topAlbum.title} (${topAlbum.playCount} plays)` : 'N/A');
-
-    const recentAlbumsEl = document.getElementById("recentAlbums");
-    if (recentAlbumsEl) {
-        recentAlbumsEl.innerHTML = "";
-        const recent = albums.slice().sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)).slice(0, 3);
-        recent.forEach(album => {
-            const li = document.createElement("li");
-            li.textContent = `${album.title} — ${album.artist}`;
-            recentAlbumsEl.appendChild(li);
-        });
+/**
+ * Toggles an album's presence in the "Next Up" Queue.
+ */
+function toggleQueue(album) {
+    const title = album.title;
+    const existingIndex = albumQueue.findIndex(a => a.title === title);
+    
+    if (existingIndex !== -1) {
+        // Remove from queue
+        albumQueue.splice(existingIndex, 1);
+        album.isQueue = false; 
+    } else {
+        // Add to queue (to the end)
+        albumQueue.push(album);
+        album.isQueue = true; 
     }
+    saveAlbumData(); 
+    filterAndSortAlbums(); 
+}
 
-    const genreDistEl = document.getElementById("genreDistribution");
-    if (genreDistEl) {
-        genreDistEl.innerHTML = "";
-        Object.entries(genreCounts).forEach(([genre, count]) => {
-            const li = document.createElement("li");
-            li.textContent = `${genre}: ${count}`;
-            genreDistEl.appendChild(li);
-        });
+/**
+ * Plays the next album in the queue.
+ */
+function playNextInQueue() {
+    if (albumQueue.length > 0) {
+        // Remove the next album from the start of the queue
+        const nextAlbum = albumQueue.shift(); 
+        
+        nextAlbum.isQueue = false;
+
+        // Play it
+        toggleAlbumEmbed(null, nextAlbum.link, nextAlbum);
+        
+        saveAlbumData(); 
+        filterAndSortAlbums(); 
+    } else {
+        closeFloatingPlayer();
+        alert("The queue is now empty!");
     }
 }
 
-function pickRandomAlbum() {
-    if (!albums.length) return;
-    const rand = albums[Math.floor(Math.random() * albums.length)];
-    const cover = document.getElementById("randomAlbumCover");
-    const text = document.getElementById("randomAlbumText");
-    if (cover && text) {
-        cover.src = rand.cover;
-        cover.alt = rand.title;
-        text.textContent = `${rand.title} — ${rand.artist}`;
+
+/**
+ * Stops playback, hides the floating player, and resets the playing state.
+ */
+function closeFloatingPlayer() {
+    const player = document.getElementById('floatingPlayer');
+    const playerIframe = player ? player.querySelector('iframe') : null;
+    
+    if (player && playerIframe) {
+        player.classList.remove('active');
+        player.classList.remove('expanded'); 
+        playerIframe.src = ''; 
     }
+    
+    currentlyPlayingAlbumTitle = null;
+    updatePlayingState(); 
+}
+
+/**
+ * Toggles the album embed player state.
+ */
+function toggleAlbumEmbed(card, link, album) {
+    const youtubeData = getYouTubeData(link);
+    const youtubeId = youtubeData.id;
+    const player = document.getElementById('floatingPlayer');
+    const playerIframe = player ? player.querySelector('iframe') : null;
+    
+    if (!youtubeId || !player || !playerIframe) {
+        alert("Sorry, embedding is not supported for this link.");
+        return;
+    }
+
+    const isCurrentAlbumPlaying = currentlyPlayingAlbumTitle === album.title;
+
+    if (isCurrentAlbumPlaying) {
+        // Stop playback
+        closeFloatingPlayer();
+    } else {
+        // Start playing the new album
+
+        closeFloatingPlayer(); 
+
+        // Update State, Track Play Count, and LAST PLAYED DATE
+        currentlyPlayingAlbumTitle = album.title;
+        album.playCount = (album.playCount || 0) + 1;
+        album.lastPlayed = new Date().toISOString(); 
+        saveAlbumData();
+        
+        // Set Floating Player to EXPANDED state
+        playerIframe.src = youtubeData.embedSrc; 
+        player.classList.add('active'); 
+        player.classList.add('expanded'); 
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        updatePlayingState();
+        
+        vinylSound.currentTime = 0;
+        vinylSound.play();
+    }
+    
+    filterAndSortAlbums(); 
+}
+
+
+/* =========================
+ 8. QUEUE MODAL IMPLEMENTATION
+ ========================= */
+
+function openQueueModal() {
+    renderQueueList();
+    queueModal.classList.add('active');
+}
+
+function closeQueueModal() {
+    queueModal.classList.remove('active');
+}
+
+/**
+ * Renders the queue list items for the modal.
+ */
+function renderQueueList() {
+    if (!queueListEl) return;
+    
+    const isEmpty = albumQueue.length === 0;
+    document.getElementById('queueEmptyMessage').style.display = isEmpty ? 'block' : 'none';
+    queueListEl.style.display = isEmpty ? 'none' : 'block';
+    document.getElementById('queuePlayNextBtn').disabled = isEmpty;
+
+    if (isEmpty) {
+        queueListEl.innerHTML = '';
+        return;
+    }
+
+    queueListEl.innerHTML = albumQueue.map((album, index) => `
+        <li class="queue-item" draggable="true" data-title="${escapeHtml(album.title)}" data-index="${index}">
+            <i class="fas fa-grip-vertical" style="color:var(--text-secondary); margin-right: 10px;"></i>
+            <img class="queue-cover" src="${album.cover}" alt="${escapeHtml(album.title)} cover">
+            <div class="queue-info">
+                <p class="queue-title">${index + 1}. ${escapeHtml(album.title)}</p>
+                <p class="queue-artist">${escapeHtml(album.artist)}</p>
+            </div>
+            <button class="queue-remove-btn" data-action="remove-from-queue" data-title="${escapeHtml(album.title)}">
+                <i class="fas fa-times"></i>
+            </button>
+        </li>
+    `).join('');
+    
+    addDragDropListeners();
+}
+
+/**
+ * Handles actions within the Queue Modal (Remove, Clear, Play Next).
+ */
+queueModal.addEventListener('click', (e) => {
+    const target = e.target;
+    const action = target.dataset.action || target.closest('button')?.dataset.action;
+    const albumTitle = target.dataset.title || target.closest('button')?.dataset.title;
+
+    if (action === 'close-queue-modal') {
+        closeQueueModal();
+        return;
+    }
+
+    if (action === 'remove-from-queue' && albumTitle) {
+        const album = albums.find(a => a.title === albumTitle);
+        if (album) toggleQueue(album);
+        renderQueueList(); 
+        return;
+    }
+
+    if (target.id === 'queuePlayNextBtn') {
+        playNextInQueue(); 
+        closeQueueModal();
+        return;
+    }
+
+    if (target.id === 'queueClearAllBtn') {
+        if (confirm("Are you sure you want to clear the entire queue?")) {
+            albumQueue.forEach(album => album.isQueue = false);
+            albumQueue = [];
+            saveAlbumData();
+            filterAndSortAlbums(); 
+            renderQueueList();
+        }
+        return;
+    }
+});
+
+
+/* =========================
+ 9. DRAG AND DROP LOGIC
+ ========================= */
+
+let draggedItem = null;
+
+function addDragDropListeners() {
+    queueListEl.querySelectorAll('.queue-item').forEach(item => {
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('dragleave', handleDragLeave);
+        item.addEventListener('drop', handleDrop);
+        item.addEventListener('dragend', handleDragEnd);
+    });
+}
+
+function handleDragStart(e) {
+    draggedItem = this;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML); 
+    this.classList.add('dragging');
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    this.classList.remove('drag-over-top', 'drag-over-bottom');
+    draggedItem = null;
+    
+    // Clean up drag indicators
+    queueListEl.querySelectorAll('.queue-item').forEach(item => {
+        item.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+}
+
+function handleDragOver(e) {
+    e.preventDefault(); 
+    if (this.title === draggedItem.title) return;
+
+    const rect = this.getBoundingClientRect();
+    const isAfter = e.clientY > rect.top + rect.height / 2;
+
+    this.classList.remove('drag-over-top', 'drag-over-bottom');
+    if (isAfter) {
+        this.classList.add('drag-over-bottom');
+    } else {
+        this.classList.add('drag-over-top');
+    }
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDragLeave(e) {
+    this.classList.remove('drag-over-top', 'drag-over-bottom');
+}
+
+function handleDrop(e) {
+    e.stopPropagation(); 
+
+    if (draggedItem && draggedItem !== this) {
+        const fromTitle = draggedItem.dataset.title;
+        const toTitle = this.dataset.title;
+        const targetIndex = albumQueue.findIndex(a => a.title === toTitle);
+        const currentIndex = albumQueue.findIndex(a => a.title === fromTitle);
+
+        if (currentIndex === -1 || targetIndex === -1) return;
+
+        const draggedAlbum = albumQueue.splice(currentIndex, 1)[0];
+        
+        const rect = this.getBoundingClientRect();
+        const isAfter = e.clientY > rect.top + rect.height / 2;
+        
+        let newIndex = targetIndex;
+        if (isAfter) {
+            newIndex = targetIndex + 1; 
+        }
+
+        albumQueue.splice(newIndex, 0, draggedAlbum);
+
+        saveAlbumData();
+        renderQueueList(); 
+    }
+    return false;
+}
+
+/* =========================
+ 10. ALBUM SUBMISSION LOGIC (ADD/EDIT)
+ ========================= */
+
+/**
+ * NEW: Opens the modal and populates it for editing an existing album.
+ */
+function openEditAlbumModal(album) {
+    document.getElementById('submissionModalTitle').innerHTML = `<i class="fas fa-edit"></i> Edit **${escapeHtml(album.title)}**`;
+    document.getElementById('submissionButton').textContent = 'Save Changes';
+    document.getElementById('submissionMessage').style.display = 'none';
+    
+    // Set the hidden ID field (key to identifying an edit operation)
+    document.getElementById('submissionAlbumId').value = album.id;
+    
+    // Pre-fill the form fields
+    document.getElementById('submissionAlbumTitle').value = album.title;
+    document.getElementById('submissionAlbumArtist').value = album.artist;
+    document.getElementById('submissionAlbumYear').value = album.year;
+    document.getElementById('submissionAlbumGenre').value = album.genre;
+    document.getElementById('submissionAlbumCover').value = album.cover;
+    document.getElementById('submissionAlbumLink').value = album.link;
+
+    submissionModal.classList.add('active');
+}
+
+/**
+ * NEW: Updates an existing album in the array.
+ */
+function updateExistingAlbum(albumId, newAlbumData) {
+    
+    let originalTitle = '';
+
+    // Use map to create a new album array with the updated data
+    albums = albums.map(album => {
+        if (album.id === albumId) {
+            originalTitle = album.title;
+
+            // Merge old data with new data (ensuring mutable stats are carried over)
+            const updatedAlbum = {
+                ...album,
+                ...newAlbumData,
+                // Ensure the ID is not accidentally overwritten
+                id: albumId,
+            };
+            
+            // If the title changed, we need to update the key in userNotesData
+            if (originalTitle !== updatedAlbum.title) {
+                userNotesData[updatedAlbum.title] = userNotesData[originalTitle];
+                delete userNotesData[originalTitle];
+            }
+            
+            return updatedAlbum;
+        }
+        return album;
+    });
+
+    saveAlbumData();
+    saveUserNotesData();
+}
+
+/**
+ * NEW: Adds a brand new album to the collection.
+ */
+function addNewAlbum(data) {
+    const newAlbum = {
+        id: getNextAlbumId(),
+        title: data.title,
+        artist: data.artist,
+        genre: data.genre,
+        cover: data.cover,
+        link: data.link,
+        dateAdded: new Date().toISOString().split('T')[0],
+        year: data.year,
+        rating: 0,
+        playCount: 0,
+        isFavorite: false,
+        lastPlayed: null,
+        userNotes: { text: '', favoriteTrack: '', vibeTags: [] },
+        communityNotes: [] 
+    };
+    albums.push(newAlbum);
+    saveAlbumData();
+    // Initialize userNotesData for the new album
+    userNotesData[newAlbum.title] = newAlbum.userNotes;
+    saveUserNotesData();
+}
+
+/**
+ * Refactored to handle the submission for both New Album and Edit Album.
+ */
+function handleNewAlbumSubmission(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const albumId = parseInt(document.getElementById('submissionAlbumId').value, 10);
+    
+    const submittedData = {
+        title: form.submissionAlbumTitle.value.trim(),
+        artist: form.submissionAlbumArtist.value.trim(),
+        year: parseInt(form.submissionAlbumYear.value, 10),
+        genre: form.submissionAlbumGenre.value.trim(),
+        cover: form.submissionAlbumCover.value.trim(),
+        link: form.submissionAlbumLink.value.trim()
+    };
+    
+    const youtubeData = getYouTubeData(submittedData.link);
+    if (!youtubeData.id && submittedData.link) {
+        alert("Invalid YouTube Link. Please ensure it is a valid video or playlist URL.");
+        return;
+    }
+
+    const submissionMessageEl = document.getElementById('submissionMessage');
+
+    if (albumId) {
+        // --- EDIT MODE ---
+        updateExistingAlbum(albumId, submittedData);
+        submissionMessageEl.textContent = `${submittedData.title} updated successfully!`;
+
+    } else {
+        // --- ADD MODE ---
+        if (albums.some(a => a.title === submittedData.title && a.artist === submittedData.artist)) {
+            alert(`Album "${submittedData.title}" by ${submittedData.artist} already exists in the collection.`);
+            return;
+        }
+        addNewAlbum(submittedData);
+        submissionMessageEl.textContent = `${submittedData.title} by ${submittedData.artist} added successfully!`;
+        form.reset();
+    }
+    
+    // Final UI Updates
+    renderGenreFilterButtons(); 
+    renderVibeTagFilters();
+    calculateStats();
+    filterAndSortAlbums(); 
+
+    // Show confirmation and close modal
+    submissionMessageEl.style.display = 'block';
+    setTimeout(() => {
+        submissionMessageEl.style.display = 'none';
+        submissionModal.classList.remove('active');
+    }, 2000);
+}
+
+
+/* =========================
+ 11. SCROLL & EVENT HANDLING
+ ========================= */
+
+window.onscroll = function() {
+    const player = document.getElementById('floatingPlayer');
+    if (!player || !player.classList.contains('active')) return;
+
+    if (window.scrollY > 200) {
+        player.classList.remove('expanded');
+    } else {
+        player.classList.add('expanded');
+    }
+};
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initial Load and Setup
+  loadAlbumData(); 
+  initializeDarkMode();
+  renderGenreFilterButtons(); 
+    renderVibeTagFilters();
+  calculateStats(); 
+  pickRandomAlbum();
+  filterAndSortAlbums(); 
+
+    // Inject the floating player structure into the body
+    const floatingPlayerHTML = `
+        <div id="floatingPlayer">
+            <button class="player-close-btn" onclick="closeFloatingPlayer()">X</button>
+            <iframe></iframe>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', floatingPlayerHTML);
+
+    updateQueueDisplay();
+
+  // --- ALBUM CARD ACTIONS (Delegated) ---
+  albumContainer?.addEventListener('click', (e) => {
+    const card = e.target.closest('.album-card');
+    if (!card) return;
+    const albumTitle = card.dataset.title;
+    const album = albums.find(a => a.title === albumTitle);
+    if (!album) return;
+
+        // 1. Rating Star Click
+    if (e.target.classList.contains('star-icon')) {
+      const newRating = parseInt(e.target.dataset.rating, 10);
+      album.rating = album.rating === newRating ? 0 : newRating;
+      saveAlbumData();
+      filterAndSortAlbums(); 
+      return;
+    }
+
+    // 2. Favorite Heart Click
+    if (e.target.classList.contains('favorite-icon')) {
+      album.isFavorite = !album.isFavorite;
+      saveAlbumData();
+      filterAndSortAlbums(); 
+      return;
+    }
+        
+        // 3. EMBED VIEW TOGGLE 
+        if (e.target.closest('.album-embed-btn')) {
+            toggleAlbumEmbed(card, album.link, album);
+            return;
+        }
+
+        // 4. QUEUE TOGGLE
+        if (e.target.closest('.queue-btn')) {
+            toggleQueue(album);
+            filterAndSortAlbums(); 
+            return;
+        }
+
+        // 5. OPEN MODAL (Clicking the Cover Image)
+        if (e.target.classList.contains('album-cover')) {
+            openAlbumModal(album);
+            return;
+        }
+
+        // 6. INTERACTIVE GENRE TAG FILTER
+        if (e.target.classList.contains('interactive-genre-tag')) {
+            const genreToFilter = e.target.dataset.genre.toLowerCase().split(' / ')[0].trim();
+            
+            currentGenreFilter = (currentGenreFilter === genreToFilter) ? 'all' : genreToFilter;
+            currentVibeTagFilter = 'all'; 
+            
+            updateFilterButtons(genreFiltersContainer, currentGenreFilter);
+            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter); 
+            updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
+            
+            filterAndSortAlbums();
+            return;
+        }
+  });
+    
+    // --- GENRE TAG INTERACTION FROM MODAL ---
+    modal.addEventListener('click', (e) => {
+        if (e.target.classList.contains('interactive-genre-tag')) {
+            const genreToFilter = e.target.dataset.genre.toLowerCase().split(' / ')[0].trim();
+            
+            currentGenreFilter = (currentGenreFilter === genreToFilter) ? 'all' : genreToFilter;
+            currentVibeTagFilter = 'all'; 
+            
+            closeAlbumModal(); 
+            
+            updateFilterButtons(genreFiltersContainer, currentGenreFilter);
+            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter); 
+            updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
+
+            filterAndSortAlbums();
+            return;
+        }
+    });
+
+    // --- Queue Display / Queue Modal Trigger ---
+    queueDisplay.addEventListener('click', (e) => {
+        if (e.target.dataset.action === 'open-queue-modal') {
+            openQueueModal();
+        }
+    });
+
+    // --- Album Submission Modal Triggers (ADD) ---
+    openAddAlbumModalBtn?.addEventListener('click', () => {
+        document.getElementById('submissionModalTitle').innerHTML = `<i class="fas fa-plus-circle"></i> Add New Album`;
+        document.getElementById('submissionButton').textContent = 'Submit Album to Collection';
+        document.getElementById('submissionForm').reset();
+        document.getElementById('submissionAlbumId').value = ''; // Important: Clear the ID for Add Mode
+        document.getElementById('submissionMessage').style.display = 'none';
+        submissionModal.classList.add('active');
+    });
+
+    submissionModal.querySelector('.modal-close-btn')?.addEventListener('click', (e) => {
+        if (e.target.dataset.action === 'close-submission-modal') {
+             submissionModal.classList.remove('active');
+        }
+    });
+
+    submissionForm?.addEventListener('submit', handleNewAlbumSubmission);
+
+
+  // --- EXTERNAL CONTROLS ---
+  searchBar?.addEventListener('input', filterAndSortAlbums);
+
+  sortDropdown?.addEventListener('change', (ev) => {
+    currentSort = ev.target.value;
+    filterAndSortAlbums();
+  });
+
+  randomPickBtn?.addEventListener('click', pickRandomAlbum);
+
+  favoritesFilterBtn?.addEventListener('click', function () {
+    showFavoritesOnly = !showFavoritesOnly;
+    this.classList.toggle('active', showFavoritesOnly);
+    this.innerHTML = showFavoritesOnly ? '<i class="fas fa-times-circle"></i> Hide Favorites' : '<i class="fas fa-heart"></i> Show Favorites';
+    filterAndSortAlbums();
+  });
+
+  darkModeToggle?.addEventListener('click', toggleDarkMode);
+    
+    // Genre Filter Buttons delegation (Top Filter)
+    genreFiltersContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('genre-filter-btn')) {
+            const filterKey = e.target.dataset.filterKey;
+            currentGenreFilter = (currentGenreFilter === filterKey) ? 'all' : filterKey;
+            currentVibeTagFilter = 'all'; 
+            updateFilterButtons(genreFiltersContainer, currentGenreFilter);
+            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter); 
+            // Update the sidebar genre chips as well
+            updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
+            filterAndSortAlbums();
+        }
+    });
+
+    // Vibe Tag Filter Buttons delegation
+    vibeTagFiltersContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('genre-filter-btn')) {
+            const filterKey = e.target.dataset.filterKey;
+            currentVibeTagFilter = (currentVibeTagFilter === filterKey) ? 'all' : filterKey;
+            currentGenreFilter = 'all'; 
+            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter);
+            updateFilterButtons(genreFiltersContainer, currentGenreFilter); 
+            filterAndSortAlbums();
+        }
+    });
+
+    // Sidebar Click Delegation
+    document.querySelector('.sidebar')?.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        // Handle Genre Breakdown Chip Click
+        if (target.classList.contains('genre-breakdown-chip')) {
+            const filterKey = target.dataset.genreKey;
+            currentGenreFilter = (currentGenreFilter === filterKey) ? 'all' : filterKey;
+            currentVibeTagFilter = 'all'; 
+            
+            // Update all related UIs
+            updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
+            updateFilterButtons(genreFiltersContainer, currentGenreFilter);
+            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter); 
+            filterAndSortAlbums();
+        }
+
+        // Handle Recently Added Item Click
+        if (target.dataset.action === 'open-modal-from-sidebar' && target.dataset.title) {
+            const albumTitle = target.dataset.title;
+            const album = albums.find(a => a.title === albumTitle);
+            if (album) {
+                openAlbumModal(album);
+            }
+        }
+    });
+});
+
+/**
+ * Helper function to update filter button active classes.
+ */
+function updateFilterButtons(container, activeFilter) {
+    if (!container) return;
+    // Determine the data attribute key based on the container type
+    const keyAttribute = container.classList.contains('genre-tag-breakdown') ? 'genreKey' : 'filterKey';
+    
+    container.querySelectorAll(`[data-${keyAttribute}]`).forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset[keyAttribute] === activeFilter) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+
+/* =========================
+ 12. STATS / RANDOM / DARK MODE / GENRE FILTERS
+ ========================= */
+
+/**
+ * Calculates and updates the stats panel elements, dynamically rendering the
+ * entire sidebar stats section using the new card structure.
+ */
+function calculateStats() {
+    
+  const albumCount = albums.length;
+  
+    // 1. Calculate Genre Counts
+  const genreCounts = {};
+  albums.forEach(a => {
+    a.genre.split(' / ').forEach(g => {
+      const genre = g.trim();
+      genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+    });
+  });
+    const sortedGenres = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]);
+
+
+    // --- UI INJECTION ---
+    const albumCountEl = document.getElementById('albumCount');
+    const topGenreEl = document.getElementById('topGenre');
+    const topAlbumEl = document.getElementById('topAlbum');
+    const recentAlbumsEl = document.getElementById('recentAlbums');
+    const genreDistEl = document.getElementById('genreDistribution');
+    
+    if (!albumCountEl || !topGenreEl || !topAlbumEl || !recentAlbumsEl || !genreDistEl) return;
+    
+    // 2. Base Stats Logic
+    const topAlbum = albums.slice().sort((a, b) => (b.playCount || 0) - (a.playCount || 0))[0];
+    const topGenre = sortedGenres[0]?.[0] || 'N/A';
+    
+    albumCountEl.textContent = albumCount;
+    topGenreEl.textContent = topGenre;
+    topAlbumEl.textContent = topAlbum ? `${topAlbum.title} (${topAlbum.playCount} plays)` : 'N/A';
+    
+    // 3. Recently Added List
+  recentAlbumsEl.innerHTML = "";
+  const recent = albums.slice().sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)).slice(0, 3);
+  recent.forEach(album => {
+    const li = document.createElement("li");
+    li.textContent = `${album.title} — ${album.artist}`;
+        li.dataset.action = "open-modal-from-sidebar";
+        li.dataset.title = album.title;
+    recentAlbumsEl.appendChild(li);
+  });
+    
+    // 4. Genre Breakdown Tag Chips HTML (Dynamic Filtering)
+    genreDistEl.innerHTML = sortedGenres.map(([genre, count]) => {
+        const key = genre.toLowerCase();
+        const activeClass = (key === currentGenreFilter) ? ' active' : '';
+        // Note: Using data-genre-key for sidebar chips
+        return `<span class="genre-breakdown-chip${activeClass}" data-genre-key="${key}">${genre} (${count})</span>`;
+    }).join('');
+}
+
+
+// Picks and displays a random album cover/title in the stats panel
+function pickRandomAlbum() {
+  if (!albums.length) return;
+  const rand = albums[Math.floor(Math.random() * albums.length)];
+  const cover = document.getElementById("randomAlbumCover");
+  const text = document.getElementById("randomAlbumText");
+  if (cover && text) {
+    cover.src = rand.cover;
+    cover.alt = rand.title;
+    text.textContent = `${rand.title} — ${rand.artist}`;
+  }
 }
 
 function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDark);
-    if (darkModeToggle) {
-        darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
-    }
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  localStorage.setItem('darkMode', isDark);
+  if (darkModeToggle) {
+    darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
+  }
 }
 
 function initializeDarkMode() {
-    let isDark = document.body.classList.contains('dark-mode');
-    const stored = localStorage.getItem('darkMode');
-    if (stored !== null) isDark = stored === 'true';
-    document.body.classList.toggle('dark-mode', isDark);
-    if (darkModeToggle) darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
+  let isDark = document.body.classList.contains('dark-mode');
+  const stored = localStorage.getItem('darkMode');
+  if (stored !== null) isDark = stored === 'true';
+  document.body.classList.toggle('dark-mode', isDark);
+  if (darkModeToggle) darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
 }
 
-/* =========================
-   9. GENRE FILTERS
-   ========================= */
-function renderGenreFilters() {
-    if (!genreFiltersContainer) return;
+// Renders the filter buttons at the top of the main content area
+function renderGenreFilterButtons() {
+  if (!genreFiltersContainer) return;
+  // Get all unique genres for the main filter buttons
     const allGenres = new Set(albums.flatMap(a => a.genre.split(' / ').map(g => g.trim())));
-    genreFiltersContainer.innerHTML = '';
-    const genres = ['All', ...Array.from(allGenres).sort()];
-    genres.forEach(genre => {
+  genreFiltersContainer.innerHTML = '';
+  const genres = ['All', ...Array.from(allGenres).sort()];
+
+  genres.forEach(genre => {
+    const btn = document.createElement('button');
+    btn.textContent = genre;
+    btn.className = 'genre-filter-btn';
+    const filterKey = (genre === 'All' ? 'all' : genre.toLowerCase());
+        btn.dataset.filterKey = filterKey; 
+
+    if (filterKey === currentGenreFilter) btn.classList.add('active');
+    genreFiltersContainer.appendChild(btn);
+  });
+}
+
+// Renders dynamic Vibe Tag filter buttons 
+function renderVibeTagFilters() {
+    if (!vibeTagFiltersContainer) return;
+
+    const allVibeTags = new Set(albums.flatMap(a => (a.userNotes.vibeTags || []).map(t => t.trim())));
+    vibeTagFiltersContainer.innerHTML = '';
+    const vibeTags = ['All Tags', ...Array.from(allVibeTags).sort()];
+
+    vibeTags.forEach(tag => {
         const btn = document.createElement('button');
-        btn.textContent = genre;
+        btn.textContent = tag;
         btn.className = 'genre-filter-btn';
-        if ((genre === 'All' ? 'all' : genre.toLowerCase()) === currentGenreFilter) btn.classList.add('active');
-        btn.addEventListener('click', () => {
-            currentGenreFilter = (genre === 'All' ? 'all' : genre.toLowerCase());
-            genreFiltersContainer.querySelectorAll('.genre-filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            filterAndSortAlbums();
-        });
-        genreFiltersContainer.appendChild(btn);
+        const filterKey = (tag === 'All Tags' ? 'all' : tag.toLowerCase());
+        btn.dataset.filterKey = filterKey;
+
+        if (filterKey === currentVibeTagFilter) btn.classList.add('active');
+        vibeTagFiltersContainer.appendChild(btn);
     });
 }
-
-/* =========================
-   INITIAL LOAD
-   ========================= */
-function initialLoad() {
-    loadAlbumData();
-    initializeDarkMode();
-    renderGenreFilters();
-    calculateStats();
-    pickRandomAlbum();
-    filterAndSortAlbums();
-}
-
-document.addEventListener('DOMContentLoaded', initialLoad);
-
-document.querySelectorAll('.volume-knob').forEach(slider => {
-  const volumeValue = slider.nextElementSibling; // assumes <span> is right after <input>
-  slider.addEventListener('input', () => {
-    volumeValue.textContent = slider.value;
-    // You can also save the volume setting here if needed
-  });
-});
