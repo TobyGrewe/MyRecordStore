@@ -6,6 +6,7 @@
     <title>Soul Repo Records</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -18,10 +19,8 @@
             </div>
             
             <button id="openFocusModeBtn" class="control-btn" title="Enter Focus Mode"><i class="fas fa-headphones"></i> Focus</button>
-            
             <button id="openDataModalBtn" class="control-btn"><i class="fas fa-database"></i> Data</button>
             <input type="file" id="importFileInput" accept=".json" style="display: none;">
-            
             <button id="darkModeToggle" class="control-btn"><i class="fas fa-moon"></i> Dark Mode</button>
         </div>
     </header>
@@ -34,27 +33,30 @@
                 <div id="nowPlayingIndicator" class="now-playing-indicator" style="display: none;">
                     <p><i class="fas fa-record-vinyl vinyl-spin"></i> Now Playing: <span id="playingAlbumTitle"></span></p>
                 </div>
+                
                 <div class="base-stats-group">
                     <div class="stat-item">
                         <p>Total Albums:</p>
                         <p class="stat-value" id="albumCount">0</p>
                     </div>
                     <div class="stat-item">
-                        <p>Top Genre:</p>
-                        <p class="stat-value" id="topGenre">N/A</p>
-                    </div>
-                    <div class="stat-item">
                         <p>Most Played:</p>
                         <p class="stat-value" id="topAlbum">N/A</p>
                     </div>
                 </div>
-                <div class="recently-added-group">
-                    <h3><i class="fas fa-clock"></i> Recently Added</h3>
-                    <ul class="recently-added-list" id="recentAlbums"></ul>
-                </div>
+
                 <div class="genre-breakdown-group">
-                    <h3><i class="fas fa-chart-pie"></i> Genre Breakdown</h3>
-                    <div class="genre-tag-breakdown" id="genreDistribution"></div>
+                    <h3><i class="fas fa-chart-pie"></i> Genres</h3>
+                    <div class="chart-container" style="position: relative; height:200px; width:100%">
+                        <canvas id="genreChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="recently-added-group">
+                    <h3><i class="fas fa-chart-bar"></i> Eras</h3>
+                    <div class="chart-container" style="position: relative; height:150px; width:100%">
+                        <canvas id="decadeChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -80,6 +82,7 @@
                         <option value="dateAdded">Recently Added</option>
                         <option value="lastPlayed">Last Played</option>
                         <option value="playCount">Most Played</option>
+                        <option value="custom">Custom (Drag & Drop)</option>
                     </select>
 
                     <button id="favoritesFilterBtn" class="control-btn"><i class="fas fa-heart"></i> Show Favorites</button>
@@ -87,7 +90,7 @@
                     <div class="view-toggle-group">
                         <button id="gridViewBtn" class="control-btn active" title="Grid View"><i class="fas fa-th-large"></i></button>
                         <button id="listViewBtn" class="control-btn" title="List View"><i class="fas fa-list"></i></button>
-                        <button id="shelfViewBtn" class="control-btn" title="Shelf View (Spines)"><i class="fas fa-book"></i></button>
+                        <button id="shelfViewBtn" class="control-btn" title="Shelf View"><i class="fas fa-book"></i></button>
                     </div>
                 </div>
 
@@ -123,14 +126,10 @@
                     <h3 id="modalArtist"></h3>
                     <p id="modalYear"></p>
                     <p class="modal-genre-display"><i class="fas fa-list"></i> Genre: <span id="modalGenre" class="interactive-genre-tag"></span></p>
-                    
-                    <div id="externalLinksContainer" class="external-links-group">
-                        </div>
-
+                    <div id="externalLinksContainer" class="external-links-group"></div>
                     <div id="modalRating" class="rating-container modal-rating-container"></div>
                     <p id="modalPlays"><i class="fas fa-record-vinyl"></i> <span id="modalPlayCount"></span> Plays</p>
                     <p id="modalLastPlayed" class="modal-last-played"><i class="fas fa-history"></i> Last Played: <span>N/A</span></p>
-                    
                     <div class="modal-actions">
                         <button id="modalEmbedBtn" class="primary-btn" data-action="embed"><i class="fa-solid fa-compact-disc"></i> Play Album</button>
                         <button id="modalQueueBtn" class="control-btn" data-action="queue"><i class="fas fa-forward"></i> Add to Queue</button>
@@ -150,12 +149,9 @@
                             <div id="modalCharCounter" class="char-counter" style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px;">Characters: 0</div>
                         </div>
                         <button id="modalSaveBtn" class="notes-save-btn">Save Private Notes</button>
-                        <p id="modalConfirmation" class="notes-confirmation">Private Notes saved!</p>
                     </div>
-
-                    <h3>💬 Community Annotations (Shared)</h3>
+                    <h3>💬 Community Annotations</h3>
                     <div class="community-notes-log" id="communityNotesLog"></div>
-                    
                     <div class="note-field-group community-input-group">
                         <label for="newCommunityNote">Leave an Annotation:</label>
                         <textarea id="newCommunityNote" class="notes-textarea" placeholder="Share your thoughts on this album..."></textarea>
@@ -191,7 +187,6 @@
                 <div class="form-group"><label for="submissionAlbumGenre">Genre (e.g., Hip-Hop / Jazz) *</label><input type="text" id="submissionAlbumGenre" required></div>
                 <div class="form-group"><label for="submissionAlbumCover">Cover Image URL *</label><input type="url" id="submissionAlbumCover" placeholder="Link to an image (e.g., .jpg, .png)" required></div>
                 <div class="form-group"><label for="submissionAlbumLink">YouTube Link (Full Album/Playlist) *</label><input type="url" id="submissionAlbumLink" placeholder="e.g., https://www.youtube.com/watch?v=..." required></div>
-                
                 <button type="submit" id="submissionButton" class="primary-btn" style="width: 100%; margin-top: 20px;">Submit Album</button>
                 <button type="button" id="deleteAlbumBtn" class="danger-btn" style="width: 100%; margin-top: 10px; display: none;"><i class="fas fa-trash"></i> Delete Album</button>
             </form>
@@ -224,6 +219,7 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="script.js"></script>
 </body>
 </html>
