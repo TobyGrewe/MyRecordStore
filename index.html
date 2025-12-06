@@ -16,6 +16,12 @@
             <div id="queueDisplay" class="queue-display" data-action="open-queue-modal">
                 <i class="fas fa-list-ol"></i> Queue is Empty
             </div>
+            
+            <button id="openFocusModeBtn" class="control-btn" title="Enter Focus Mode"><i class="fas fa-headphones"></i> Focus</button>
+            
+            <button id="openDataModalBtn" class="control-btn"><i class="fas fa-database"></i> Data</button>
+            <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            
             <button id="darkModeToggle" class="control-btn"><i class="fas fa-moon"></i> Dark Mode</button>
         </div>
     </header>
@@ -24,14 +30,14 @@
         
         <aside class="sidebar">
             <div class="stats-panel">
-                <h2>📈 Collection Stats</h2>
+                <h2>📊 Collection Stats</h2>
                 <div id="nowPlayingIndicator" class="now-playing-indicator" style="display: none;">
                     <p><i class="fas fa-record-vinyl vinyl-spin"></i> Now Playing: <span id="playingAlbumTitle"></span></p>
                 </div>
                 <div class="base-stats-group">
                     <div class="stat-item">
                         <p>Total Albums:</p>
-                        <p class="stat-value" id="albumCount">N/A</p>
+                        <p class="stat-value" id="albumCount">0</p>
                     </div>
                     <div class="stat-item">
                         <p>Top Genre:</p>
@@ -44,21 +50,18 @@
                 </div>
                 <div class="recently-added-group">
                     <h3><i class="fas fa-clock"></i> Recently Added</h3>
-                    <ul class="recently-added-list" id="recentAlbums">
-                        </ul>
+                    <ul class="recently-added-list" id="recentAlbums"></ul>
                 </div>
                 <div class="genre-breakdown-group">
                     <h3><i class="fas fa-chart-pie"></i> Genre Breakdown</h3>
-                    <div class="genre-tag-breakdown" id="genreDistribution">
-                        </div>
+                    <div class="genre-tag-breakdown" id="genreDistribution"></div>
                 </div>
-                
             </div>
 
             <div class="random-pick-panel">
                 <h2>🎲 Random Spin</h2>
                 <img id="randomAlbumCover" src="images/placeholder.jpg" alt="Random Album Cover" class="random-cover">
-                <p id="randomAlbumText">Click below to find your next listen!</p>
+                <div id="randomAlbumText">Click below to find your next listen!</div>
                 <button id="randomPickBtn" class="primary-btn">Pick Random Album</button>
             </div>
         </aside>
@@ -68,6 +71,7 @@
             <section class="controls-section">
                 <div class="filter-sort-group">
                     <input type="text" id="searchBar" placeholder="Search (e.g., year:2006 artist:dilla)">
+                    
                     <select id="sortDropdown">
                         <option value="title">Title</option>
                         <option value="artist">Artist</option>
@@ -77,16 +81,30 @@
                         <option value="lastPlayed">Last Played</option>
                         <option value="playCount">Most Played</option>
                     </select>
+
                     <button id="favoritesFilterBtn" class="control-btn"><i class="fas fa-heart"></i> Show Favorites</button>
+                    
+                    <div class="view-toggle-group">
+                        <button id="gridViewBtn" class="control-btn active" title="Grid View"><i class="fas fa-th-large"></i></button>
+                        <button id="listViewBtn" class="control-btn" title="List View"><i class="fas fa-list"></i></button>
+                        <button id="shelfViewBtn" class="control-btn" title="Shelf View (Spines)"><i class="fas fa-book"></i></button>
+                    </div>
                 </div>
 
                 <h3>Genre Filter</h3>
-                <div id="genreFilters" class="genre-filters">
-                    </div>
+                <div id="genreFilters" class="genre-filters"></div>
 
-                <h3>Vibe Tags Filter</h3>
-                <div id="vibeTagFilters" class="genre-filters">
-                    </div>
+                <h3 style="margin-top: 15px;">Decade Filter</h3>
+                <div id="decadeFilters" class="genre-filters">
+                    <button class="decade-filter-btn active" data-decade="all">All Eras</button>
+                    <button class="decade-filter-btn" data-decade="1960">60s</button>
+                    <button class="decade-filter-btn" data-decade="1970">70s</button>
+                    <button class="decade-filter-btn" data-decade="1980">80s</button>
+                    <button class="decade-filter-btn" data-decade="1990">90s</button>
+                    <button class="decade-filter-btn" data-decade="2000">00s</button>
+                    <button class="decade-filter-btn" data-decade="2010">10s</button>
+                    <button class="decade-filter-btn" data-decade="2020">20s</button>
+                </div>
             </section>
             
             <section id="albumContainer" class="album-grid">
@@ -105,9 +123,14 @@
                     <h3 id="modalArtist"></h3>
                     <p id="modalYear"></p>
                     <p class="modal-genre-display"><i class="fas fa-list"></i> Genre: <span id="modalGenre" class="interactive-genre-tag"></span></p>
+                    
+                    <div id="externalLinksContainer" class="external-links-group">
+                        </div>
+
                     <div id="modalRating" class="rating-container modal-rating-container"></div>
                     <p id="modalPlays"><i class="fas fa-record-vinyl"></i> <span id="modalPlayCount"></span> Plays</p>
                     <p id="modalLastPlayed" class="modal-last-played"><i class="fas fa-history"></i> Last Played: <span>N/A</span></p>
+                    
                     <div class="modal-actions">
                         <button id="modalEmbedBtn" class="primary-btn" data-action="embed"><i class="fa-solid fa-compact-disc"></i> Play Album</button>
                         <button id="modalQueueBtn" class="control-btn" data-action="queue"><i class="fas fa-forward"></i> Add to Queue</button>
@@ -115,20 +138,12 @@
                     <button id="modalEditBtn" class="control-btn" style="margin-top: 15px; width: 100%;"><i class="fas fa-edit"></i> Edit Album Details</button>
                 </div>
                 <div class="modal-notes-section">
-                    
-                    <h3>📝 Your Private Notes & Vibes</h3>
+                    <h3>📝 Your Private Notes</h3>
                     <div class="user-notes-group">
                         <div class="note-field-group">
                             <label for="modalFavTrack">Favorite Track:</label>
                             <input type="text" id="modalFavTrack" class="notes-fav-track" placeholder="e.g., The New Song">
                         </div>
-
-                        <div class="note-field-group tags-group">
-                            <label>Vibe Tags (Max 3):</label>
-                            <div id="modalTagsContainer" class="tags-container" data-album-id="">
-                                </div>
-                        </div>
-
                         <div class="note-field-group">
                             <label for="modalNotesText">Detailed Notes:</label>
                             <textarea id="modalNotesText" class="notes-textarea" placeholder="Add your detailed thoughts..."></textarea>
@@ -139,15 +154,13 @@
                     </div>
 
                     <h3>💬 Community Annotations (Shared)</h3>
-                    <div class="community-notes-log" id="communityNotesLog">
-                        </div>
+                    <div class="community-notes-log" id="communityNotesLog"></div>
                     
                     <div class="note-field-group community-input-group">
                         <label for="newCommunityNote">Leave an Annotation:</label>
                         <textarea id="newCommunityNote" class="notes-textarea" placeholder="Share your thoughts on this album..."></textarea>
                         <button id="addCommunityNoteBtn" class="primary-btn" style="width: auto; margin-top: 10px;">Post Annotation</button>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -157,12 +170,8 @@
         <div class="modal-content queue-content">
             <span class="modal-close-btn" data-action="close-queue-modal">&times;</span>
             <h2 style="color:var(--accent-color); margin-bottom: 20px;"><i class="fas fa-list-ol"></i> Current Play Queue</h2>
-            
-            <p id="queueEmptyMessage" style="text-align: center; color: var(--text-secondary); padding: 20px; border: 1px dashed var(--border-color); display: none;">Your queue is empty. Add albums from the main collection!</p>
-
-            <ul id="queueList" class="queue-list">
-                </ul>
-            
+            <p id="queueEmptyMessage" style="text-align: center; color: var(--text-secondary); padding: 20px; border: 1px dashed var(--border-color); display: none;">Your queue is empty.</p>
+            <ul id="queueList" class="queue-list"></ul>
             <div class="queue-actions">
                 <button id="queuePlayNextBtn" class="primary-btn" style="width: auto;"><i class="fas fa-play"></i> Play Next In Queue</button>
                 <button id="queueClearAllBtn" class="control-btn" style="width: auto; background-color: var(--accent-light); color: white;"><i class="fas fa-trash"></i> Clear All</button>
@@ -174,42 +183,46 @@
         <div class="modal-content" style="max-width: 500px;">
             <span class="modal-close-btn" data-action="close-submission-modal">&times;</span>
             <h2 id="submissionModalTitle" style="color:var(--accent-color); margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> Add New Album</h2>
-            
             <form id="submissionForm" class="add-album-form">
                 <input type="hidden" id="submissionAlbumId">
-
-                <div class="form-group">
-                    <label for="submissionAlbumTitle">Title *</label>
-                    <input type="text" id="submissionAlbumTitle" required>
-                </div>
-                <div class="form-group">
-                    <label for="submissionAlbumArtist">Artist *</label>
-                    <input type="text" id="submissionAlbumArtist" required>
-                </div>
-                <div class="form-group">
-                    <label for="submissionAlbumYear">Year *</label>
-                    <input type="number" id="submissionAlbumYear" min="1900" max="2099" required>
-                </div>
-                <div class="form-group">
-                    <label for="submissionAlbumGenre">Genre (e.g., Hip-Hop / Jazz) *</label>
-                    <input type="text" id="submissionAlbumGenre" required>
-                </div>
-                <div class="form-group">
-                    <label for="submissionAlbumCover">Cover Image URL *</label>
-                    <input type="url" id="submissionAlbumCover" placeholder="Link to an image (e.g., .jpg, .png)" required>
-                </div>
-                <div class="form-group">
-                    <label for="submissionAlbumLink">YouTube Link (Full Album/Playlist) *</label>
-                    <input type="url" id="submissionAlbumLink" placeholder="e.g., https://www.youtube.com/watch?v=..." required>
-                </div>
+                <div class="form-group"><label for="submissionAlbumTitle">Title *</label><input type="text" id="submissionAlbumTitle" required></div>
+                <div class="form-group"><label for="submissionAlbumArtist">Artist *</label><input type="text" id="submissionAlbumArtist" required></div>
+                <div class="form-group"><label for="submissionAlbumYear">Year *</label><input type="number" id="submissionAlbumYear" min="1900" max="2099" required></div>
+                <div class="form-group"><label for="submissionAlbumGenre">Genre (e.g., Hip-Hop / Jazz) *</label><input type="text" id="submissionAlbumGenre" required></div>
+                <div class="form-group"><label for="submissionAlbumCover">Cover Image URL *</label><input type="url" id="submissionAlbumCover" placeholder="Link to an image (e.g., .jpg, .png)" required></div>
+                <div class="form-group"><label for="submissionAlbumLink">YouTube Link (Full Album/Playlist) *</label><input type="url" id="submissionAlbumLink" placeholder="e.g., https://www.youtube.com/watch?v=..." required></div>
                 
                 <button type="submit" id="submissionButton" class="primary-btn" style="width: 100%; margin-top: 20px;">Submit Album</button>
+                <button type="button" id="deleteAlbumBtn" class="danger-btn" style="width: 100%; margin-top: 10px; display: none;"><i class="fas fa-trash"></i> Delete Album</button>
             </form>
-
-            <p id="submissionMessage" style="text-align: center; color: green; margin-top: 15px; display: none;"></p>
         </div>
     </div>
 
+    <div id="dataModal" class="modal">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <span class="modal-close-btn" data-action="close-data-modal">&times;</span>
+            <h2 style="color:var(--accent-color);"><i class="fas fa-save"></i> Manage Collection</h2>
+            <p style="color:var(--text-secondary); margin-bottom: 25px;">Save your collection to a file or restore from a backup.</p>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button id="exportDataBtn" class="primary-btn" style="padding: 15px;"><i class="fas fa-download"></i> Download Backup (.json)</button>
+                <div style="border-top: 1px solid var(--border-color); margin: 10px 0;"></div>
+                <button id="triggerImportBtn" class="control-btn" style="padding: 15px;"><i class="fas fa-upload"></i> Restore from Backup</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="focusOverlay">
+        <div class="focus-content">
+            <button id="closeFocusBtn">&times;</button>
+            <img id="focusCover" src="" alt="Album Cover">
+            <div class="focus-info">
+                <h1 id="focusTitle">No Music Playing</h1>
+                <h3 id="focusArtist">Select an album to start</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
 
     <script src="script.js"></script>
 </body>

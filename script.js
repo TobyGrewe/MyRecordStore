@@ -6,7 +6,7 @@
 const vinylSound = new Audio('sounds/vinyl-scratch.mp3');
 vinylSound.volume = 0.3; 
 
-// Initial Album Data (Used if no data is found in localStorage)
+// Initial Album Data
 const initialAlbums = [
   { id: 1, title: "Donuts", artist: "J Dilla", genre: "Hip-Hop", cover: "images/Dilladonuts.jpg", link: "https://youtu.be/crZF0YNORIY?start=0", dateAdded: "2023-10-01", year: 2006, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
   { id: 2, title: "Graduation", artist: "Kanye West", genre: "Hip-Hop", cover: "images/kanyWestGraduation.jpg", link: "https://www.youtube.com/watch?v=rr3p8qy1X-g&list=PLg4d8d95_7w1d6J3r4qJ1jL8k0l2l0d2W&start=0", dateAdded: "2023-11-15", year: 2007, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
@@ -34,7 +34,6 @@ const initialAlbums = [
   { id: 24, title: "You Will Never Know Why", artist: "Sweet Trip", genre: "Indie pop", cover: "images/SweetTripYouWillNeverKnowWhy.jpg", link: "https://www.youtube.com/watch?v=MSq0gOJ9AGA&start=0", dateAdded: "2023-10-01", year: 2009, rating: 0, playCount: 0, isFavorite: false, lastPlayed: null, userNotes: {}, communityNotes: [] },
 ];
 
-// The actual array we will work with (will be overwritten by localStorage)
 let albums = []; 
 
 /* =========================
@@ -46,78 +45,95 @@ const sortDropdown = document.getElementById('sortDropdown');
 const favoritesFilterBtn = document.getElementById('favoritesFilterBtn');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const genreFiltersContainer = document.getElementById('genreFilters');
-const vibeTagFiltersContainer = document.getElementById('vibeTagFilters'); 
+const decadeFiltersContainer = document.getElementById('decadeFilters');
 const randomPickBtn = document.getElementById("randomPickBtn");
 const modal = document.getElementById('albumModal');
 const queueModal = document.getElementById('queueModal'); 
 const queueDisplay = document.getElementById('queueDisplay');
 const queueListEl = document.getElementById('queueList'); 
 
-// REFACTORED: Submission modal is now used for both Add and Edit
+// View Toggles
+const gridViewBtn = document.getElementById('gridViewBtn');
+const listViewBtn = document.getElementById('listViewBtn');
+const shelfViewBtn = document.getElementById('shelfViewBtn'); // NEW
+
+// Modals
 const submissionModal = document.getElementById('submissionModal'); 
 const submissionForm = document.getElementById('submissionForm');
 const openAddAlbumModalBtn = document.getElementById('openAddAlbumModalBtn');
+const deleteAlbumBtn = document.getElementById('deleteAlbumBtn');
+const dataModal = document.getElementById('dataModal');
+const openDataModalBtn = document.getElementById('openDataModalBtn');
+const exportDataBtn = document.getElementById('exportDataBtn');
+const triggerImportBtn = document.getElementById('triggerImportBtn');
+const importFileInput = document.getElementById('importFileInput');
+const toastContainer = document.getElementById('toastContainer');
 
+// Focus Mode Elements (NEW)
+const focusOverlay = document.getElementById('focusOverlay');
+const openFocusModeBtn = document.getElementById('openFocusModeBtn');
+const closeFocusBtn = document.getElementById('closeFocusBtn');
+const focusCover = document.getElementById('focusCover');
+const focusTitle = document.getElementById('focusTitle');
+const focusArtist = document.getElementById('focusArtist');
 
 let currentSort = 'title';
 let currentGenreFilter = 'all';
-let currentVibeTagFilter = 'all';
+let currentDecadeFilter = 'all';
 let showFavoritesOnly = false;
 let currentlyPlayingAlbumTitle = null; 
-let albumQueue = []; // Array to hold album objects in the queue order
+let albumQueue = [];
+const userNotesData = {}; 
 
-// Data Structures
-const userNotesData = {}; // Stores user-specific notes (private)
-
-// FAKE COMMUNITY DATA: Simulated community notes for demonstration
 const communityNotesCollection = {
-    "Donuts": [
-        { user: "Anonymous-1", text: "A legendary album! Perfect background music for coding.", timestamp: "2024-11-18T10:00:00Z" },
-        { user: "Lo-Fi_Lover", text: "I really loved this album, thanks for the recommendation. Essential listening.", timestamp: "2024-11-20T15:30:00Z" }
-    ],
-    "Nevermind": [
-        { user: "RockFanatic", text: "Smells Like Teen Spirit is iconic, obviously.", timestamp: "2024-09-01T12:00:00Z" }
-    ]
+    "Donuts": [{ user: "Anonymous-1", text: "A legendary album! Perfect background music for coding.", timestamp: "2024-11-18T10:00:00Z" }],
+    "Nevermind": [{ user: "RockFanatic", text: "Smells Like Teen Spirit is iconic, obviously.", timestamp: "2024-09-01T12:00:00Z" }]
 };
+
+/* =========================
+ 3. TOAST NOTIFICATIONS
+ ========================= */
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let icon = 'fa-check-circle';
+    if(type === 'error') icon = 'fa-exclamation-circle';
+    if(type === 'info') icon = 'fa-info-circle';
+
+    toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+    toastContainer.appendChild(toast);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+        toast.addEventListener('animationend', () => toast.remove());
+    }, 3000);
+}
 
 
 /* =========================
- 3. PERSISTENCE
+ 4. PERSISTENCE
  ========================= */
-
-/**
- * Saves ALL album data (including new albums) to localStorage.
- */
 function saveAlbumData() {
-    // Save the ENTIRE current albums array (including new albums and mutable stats)
     localStorage.setItem('albumCollection', JSON.stringify(albums)); 
-
-    // Save queue order explicitly
     const queueTitles = albumQueue.map(a => a.title);
     localStorage.setItem('albumQueueOrder', JSON.stringify(queueTitles));
-
-  calculateStats();
+    calculateStats();
     updateQueueDisplay();
 }
 
-/**
- * Saves all user-specific structured notes into a single localStorage entry.
- */
 function saveUserNotesData() {
     const toSave = {};
     for (const title in userNotesData) {
-        if (userNotesData[title].text || userNotesData[title].favoriteTrack || userNotesData[title].vibeTags.length > 0) {
+        if (userNotesData[title].text || userNotesData[title].favoriteTrack) {
             toSave[title] = userNotesData[title];
         }
     }
     localStorage.setItem('userStructuredNotes', JSON.stringify(toSave));
 }
 
-/**
- * Loads entire collection, notes data, and reconstructs the queue.
- */
 function loadAlbumData() {
-    // 1. Load THE ENTIRE COLLECTION from localStorage first
     const savedCollection = localStorage.getItem('albumCollection');
     if (savedCollection) {
         try {
@@ -127,13 +143,11 @@ function loadAlbumData() {
             albums = initialAlbums;
         }
     } else {
-        // If no collection saved yet, use the initial hardcoded data
         albums = initialAlbums; 
     }
     
-    // 2. Load queue order
     const savedQueueOrder = localStorage.getItem('albumQueueOrder');
-    albumQueue = []; // Reset queue
+    albumQueue = [];
     if (savedQueueOrder) {
         try {
             const queueTitles = JSON.parse(savedQueueOrder);
@@ -149,20 +163,12 @@ function loadAlbumData() {
         }
     }
 
-
-    // 3. Load user-specific structured notes
     loadUserNotesData();
-    
-    // 4. Simulate loading community notes
     albums.forEach(album => {
-        // Assign the simulated community data
         album.communityNotes = communityNotesCollection[album.title] || []; 
     });
 }
 
-/**
- * Loads user-specific structured notes.
- */
 function loadUserNotesData() {
     const savedStructured = localStorage.getItem('userStructuredNotes');
     let loadedNotes = {};
@@ -175,31 +181,22 @@ function loadUserNotesData() {
     }
 
     albums.forEach(album => {
-        // Initialize with defaults if not loaded
-        let notes = loadedNotes[album.title] || { text: '', favoriteTrack: '', vibeTags: [] };
-        
+        let notes = loadedNotes[album.title] || { text: '', favoriteTrack: '' };
         album.userNotes = notes; 
         userNotesData[album.title] = notes;
     });
 }
 
-
 /* =========================
- 4. RENDER & UTILITY HELPERS
+ 5. UTILITY & HTML GENERATION
  ========================= */
-
-// Global utility to get a unique ID for new albums
 function getNextAlbumId() {
     return albums.reduce((maxId, album) => Math.max(maxId, album.id), 0) + 1;
 }
 
-/**
- * Extracts the YouTube video/playlist ID and type from various URL formats.
- */
 function getYouTubeData(url) {
     if (!url || url.includes('dailymotion')) return { id: null, type: null, embedSrc: null }; 
     
-    // Check for Playlist ID first
     const playlistMatch = url.match(/[?&]list=([^&]+)/);
     if (playlistMatch && playlistMatch[1]) {
         return { 
@@ -209,7 +206,6 @@ function getYouTubeData(url) {
         };
     }
 
-    // Check for standard video ID
     const videoMatch = url.match(/(?:youtu\.be\/|v=|embed\/)([^#&?]*)/);
     if (videoMatch && videoMatch[1]) {
         return { 
@@ -222,7 +218,6 @@ function getYouTubeData(url) {
     return { id: null, type: null, embedSrc: null };
 }
 
-// Renders the 5-star rating HTML
 function renderStars(rating, albumTitle) {
   let html = '';
   for (let i = 1; i <= 5; i++) {
@@ -232,35 +227,28 @@ function renderStars(rating, albumTitle) {
   return html;
 }
 
-// Basic HTML escaping for dynamic content
 function escapeHtml(s = '') {
   return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
 }
 
-
-/**
- * Renders the main album card HTML.
- */
 function createAlbumCardHTML(album) {
   const favClass = album.isFavorite ? 'fa-solid' : 'fa-regular';
-    const isPlayingClass = album.title === currentlyPlayingAlbumTitle ? ' is-playing' : ''; 
-    const isQueueClass = albumQueue.some(a => a.title === album.title) ? ' in-queue' : ''; 
-    const youtubeData = getYouTubeData(album.link);
-    const embedIcon = youtubeData.type === 'playlist' ? 'fa-list-music' : 'fa-compact-disc';
-    const embedDisabled = !youtubeData.id ? 'disabled' : '';
+  const isPlayingClass = album.title === currentlyPlayingAlbumTitle ? ' is-playing' : ''; 
+  const isQueueClass = albumQueue.some(a => a.title === album.title) ? ' in-queue' : ''; 
+  const youtubeData = getYouTubeData(album.link);
+  const embedIcon = youtubeData.type === 'playlist' ? 'fa-list-music' : 'fa-compact-disc';
+  const embedDisabled = !youtubeData.id ? 'disabled' : '';
 
   return `
   <div class="album-card${isPlayingClass}" data-title="${escapeHtml(album.title)}" data-id="${album.id}">
    <img class="album-cover" src="${album.cover}" alt="${escapeHtml(album.title)} cover" data-action="open-modal">
-   
    <div class="album-info-group">
          <h3 class="album-title">${escapeHtml(album.title)}</h3>
          <p class="album-artist">${escapeHtml(album.artist)}</p>
          <p class="album-genre" style="font-size:0.8rem;color:var(--text-secondary)">
-              Genre: <span class="interactive-genre-tag" data-genre="${escapeHtml(album.genre)}">${escapeHtml(album.genre)}</span>
+              Genre: <span class="interactive-genre-tag" data-genre="${escapeHtml(album.genre)}">${escapeHtml(album.genre)}</span> | ${album.year}
           </p>
-        </div>
-
+   </div>
    <div class="rating-play-controls">
     <div class="rating-display-group">
      <p class="play-count"><i class="fas fa-record-vinyl"></i> ${album.playCount || 0}</p>
@@ -268,22 +256,13 @@ function createAlbumCardHTML(album) {
     </div>
     <i class="${favClass} fa-heart favorite-icon" data-album-title="${escapeHtml(album.title)}" style="font-size:1.75rem;"></i>
    </div>
-
    <div class="card-bottom-controls">
-    <button class="album-embed-btn" data-action="toggle-embed" data-link="${album.link}" ${embedDisabled}>
-     <i class="fa-solid ${embedIcon}"></i> Play
-    </button>
-        <button class="queue-btn${isQueueClass}" data-action="toggle-queue" data-album-title="${escapeHtml(album.title)}">
-            <i class="fas fa-forward"></i> ${isQueueClass ? 'In Queue' : 'Queue'}
-        </button>
+    <button class="album-embed-btn" data-action="toggle-embed" data-link="${album.link}" ${embedDisabled}><i class="fa-solid ${embedIcon}"></i> Play</button>
+    <button class="queue-btn${isQueueClass}" data-action="toggle-queue" data-album-title="${escapeHtml(album.title)}"><i class="fas fa-forward"></i> ${isQueueClass ? 'In Queue' : 'Queue'}</button>
    </div>
-  </div>
-  `;
+  </div>`;
 }
 
-/**
- * Updates the 'is-playing' class on the album cards and the Now Playing indicator.
- */
 function updatePlayingState() {
     const indicator = document.getElementById('nowPlayingIndicator');
     const titleSpan = document.getElementById('playingAlbumTitle');
@@ -305,11 +284,7 @@ function updatePlayingState() {
     }
 }
 
-/**
- * Updates the queue summary display in the header.
- */
 function updateQueueDisplay() {
-    // Recalculate isQueue state based on the albumQueue array
     albums.forEach(album => {
         album.isQueue = albumQueue.some(a => a.title === album.title);
     });
@@ -320,7 +295,6 @@ function updateQueueDisplay() {
         queueDisplay.innerHTML = `<i class="fas fa-list-ol"></i> Queue is Empty`;
     }
     
-    // Update card buttons to reflect queue status
     document.querySelectorAll('.queue-btn').forEach(btn => {
         const title = btn.dataset.albumTitle;
         const inQueue = albumQueue.some(a => a.title === title);
@@ -329,14 +303,11 @@ function updateQueueDisplay() {
         btn.innerHTML = `<i class="fas fa-forward"></i> ${inQueue ? 'In Queue' : 'Queue'}`;
     });
     
-    // Update queue modal UI if it's open
     if (queueModal.classList.contains('active')) {
         renderQueueList();
     }
 }
 
-
-// Formats date string (e.g., "2024-11-22T15:00:00.000Z") to a readable format
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -348,7 +319,6 @@ function formatDate(dateString) {
     });
 }
 
-// Formats date for community notes
 function formatCommunityDate(dateString) {
     const date = new Date(dateString);
     if (isNaN(date)) return 'Unknown Date';
@@ -362,9 +332,8 @@ function formatCommunityDate(dateString) {
 }
 
 /* =========================
- 5. FILTER / SORT / DISPLAY
+ 6. FILTER / SORT / DISPLAY
  ========================= */
-
 function parseAdvancedSearch(query) {
     const criteria = {
         general: [],
@@ -413,7 +382,6 @@ function matchesYearCondition(albumYear, yearCriteria) {
     return !isNaN(yearVal) ? albumYear === yearVal : true;
 }
 
-
 function filterAndSortAlbums() {
     const searchCriteria = parseAdvancedSearch(searchBar.value);
     
@@ -421,7 +389,6 @@ function filterAndSortAlbums() {
         const generalSearch = searchCriteria.generalText;
         const albumGenreList = a.genre.toLowerCase().split(' / ').map(g => g.trim());
 
-        // 1. General Text Search (Title, Artist, Genre, Notes)
         const matchesGeneral = generalSearch.length === 0 || 
                                a.title.toLowerCase().includes(generalSearch) || 
                                a.artist.toLowerCase().includes(generalSearch) ||
@@ -429,26 +396,25 @@ function filterAndSortAlbums() {
                                a.userNotes.text.toLowerCase().includes(generalSearch) || 
                                a.userNotes.favoriteTrack.toLowerCase().includes(generalSearch); 
         
-        // 2. Advanced Search Criteria
         const matchesArtist = !searchCriteria.artist || a.artist.toLowerCase().includes(searchCriteria.artist);
         const matchesTitle = !searchCriteria.title || a.title.toLowerCase().includes(searchCriteria.title);
         const matchesYear = !searchCriteria.year || matchesYearCondition(a.year, searchCriteria.year);
         const matchesSearchCriteria = matchesGeneral && matchesArtist && matchesTitle && matchesYear;
 
-        // 3. Genre Button Filter
         const matchesGenre = currentGenreFilter === 'all' || albumGenreList.includes(currentGenreFilter);
-        
-        // 4. Vibe Tag Filter 
-        const albumVibeTags = a.userNotes.vibeTags.map(tag => tag.toLowerCase()); 
-        const matchesVibeTag = currentVibeTagFilter === 'all' || albumVibeTags.includes(currentVibeTagFilter);
-
-        // 5. Favorites Filter
         const matchesFavorite = !showFavoritesOnly || a.isFavorite;
 
-        return matchesSearchCriteria && matchesGenre && matchesVibeTag && matchesFavorite;
+        // DECADE FILTER LOGIC
+        let matchesDecade = true;
+        if (currentDecadeFilter !== 'all') {
+            const decadeStart = parseInt(currentDecadeFilter, 10);
+            const albumDecade = Math.floor(a.year / 10) * 10;
+            matchesDecade = (albumDecade === decadeStart);
+        }
+
+        return matchesSearchCriteria && matchesGenre && matchesFavorite && matchesDecade;
     });
 
-    // Handle sorting
     filtered.sort((a, b) => {
         switch (currentSort) {
             case 'title':
@@ -475,8 +441,6 @@ function filterAndSortAlbums() {
     displayFilteredAlbums(filtered);
 }
 
-
-// Clears and re-renders the album grid
 function displayFilteredAlbums(list) {
   if (!albumContainer) return;
   if (!list.length) {
@@ -488,23 +452,9 @@ function displayFilteredAlbums(list) {
     updateQueueDisplay();
 }
 
-
 /* =========================
- 6. MODAL & NOTES MANAGEMENT
+ 7. MODALS, ACTIONS & PLAYBACK
  ========================= */
-
-// Renders the tags for the modal
-function createModalTagsHTML(album) {
-    const albumNoteData = userNotesData[album.title] || { vibeTags: [] };
-    const availableTags = ['Chill', 'Hype', 'Lo-Fi', 'Ambient', 'Classic', 'Focus', 'Dance', 'Loud'];
-
-    return availableTags.map(tag => {
-        const isSelected = albumNoteData.vibeTags.includes(tag);
-        return `<span class="tag-chip${isSelected ? ' selected' : ''}" data-tag="${tag}">${tag}</span>`;
-    }).join('');
-}
-
-// Renders the community notes section
 function renderCommunityNotes(album) {
     const notes = album.communityNotes || [];
     const logEl = document.getElementById('communityNotesLog');
@@ -525,13 +475,8 @@ function renderCommunityNotes(album) {
     `).join('');
 }
 
-/**
- * Populates and opens the full-screen modal.
- */
 function openAlbumModal(album) {
-    // Populate static info
     document.getElementById('modalCover').src = album.cover;
-    document.getElementById('modalCover').alt = album.title;
     document.getElementById('modalTitle').textContent = album.title;
     document.getElementById('modalArtist').textContent = album.artist;
     document.getElementById('modalYear').textContent = `Year: ${album.year}`;
@@ -546,6 +491,23 @@ function openAlbumModal(album) {
     const ratingContainer = document.getElementById('modalRating');
     ratingContainer.innerHTML = renderStars(album.rating, album.title);
 
+    // NEW: Smart External Links
+    const linksContainer = document.getElementById('externalLinksContainer');
+    const safeArtist = encodeURIComponent(album.artist);
+    const safeTitle = encodeURIComponent(album.title);
+    
+    linksContainer.innerHTML = `
+        <a href="https://www.discogs.com/search/?q=${safeArtist}+${safeTitle}&type=release" target="_blank" class="external-link-btn">
+            <i class="fas fa-compact-disc"></i> Discogs
+        </a>
+        <a href="https://en.wikipedia.org/wiki/Special:Search?search=${safeArtist}+${safeTitle}+album" target="_blank" class="external-link-btn">
+            <i class="fab fa-wikipedia-w"></i> Wiki
+        </a>
+        <a href="https://genius.com/search?q=${safeArtist}+${safeTitle}" target="_blank" class="external-link-btn">
+            <i class="fas fa-music"></i> Genius
+        </a>
+    `;
+
     const embedBtn = document.getElementById('modalEmbedBtn');
     embedBtn.dataset.link = album.link;
     embedBtn.dataset.albumTitle = album.title;
@@ -558,11 +520,9 @@ function openAlbumModal(album) {
     queueBtn.classList.toggle('control-btn', !inQueue);
     queueBtn.classList.toggle('primary-btn', inQueue);
     
-    // NEW: Set Album ID on the Edit Button
     document.getElementById('modalEditBtn').dataset.albumId = album.id;
 
 
-    // Populate User Notes Section
     const userNotes = userNotesData[album.title];
     const notesTextarea = document.getElementById('modalNotesText');
     const charCounter = document.getElementById('modalCharCounter');
@@ -571,24 +531,15 @@ function openAlbumModal(album) {
     notesTextarea.value = userNotes.text;
     charCounter.textContent = `Characters: ${userNotes.text.length}`;
     
-    const tagsContainer = document.getElementById('modalTagsContainer');
-    tagsContainer.innerHTML = createModalTagsHTML(album);
-
-    // Populate Community Notes Section
     renderCommunityNotes(album);
     document.getElementById('newCommunityNote').value = ''; 
 
-    // Set album title for save button context
     document.getElementById('modalSaveBtn').dataset.albumTitle = album.title;
     document.getElementById('addCommunityNoteBtn').dataset.albumTitle = album.title;
     
-    // Show the modal
     modal.classList.add('active');
 }
 
-/**
- * Closes the full-screen album modal.
- */
 function closeAlbumModal() {
     modal.classList.remove('active');
     document.getElementById('modalConfirmation').classList.remove('visible');
@@ -620,12 +571,11 @@ modal.addEventListener('click', (e) => {
         return;
     }
     
-    // NEW: Open Edit Modal from Detail Modal
     if (target.id === 'modalEditBtn') {
         const albumId = parseInt(target.dataset.albumId, 10);
         const albumToEdit = albums.find(a => a.id === albumId);
         if (albumToEdit) {
-            closeAlbumModal(); // Close detail view
+            closeAlbumModal(); 
             openEditAlbumModal(albumToEdit);
         }
         return;
@@ -640,40 +590,20 @@ modal.addEventListener('click', (e) => {
         return;
     }
     
-    if (target.classList.contains('tag-chip')) {
-        const tag = target.dataset.tag;
-        const notes = userNotesData[albumTitle];
-        if (target.classList.contains('selected')) {
-            target.classList.remove('selected');
-            notes.vibeTags = notes.vibeTags.filter(t => t !== tag);
-        } else {
-            if (notes.vibeTags.length < 3) {
-                target.classList.add('selected');
-                notes.vibeTags.push(tag);
-            }
-        }
-        return;
-    }
-
-    // Save User Notes (Private)
     if (target.id === 'modalSaveBtn') {
         const notes = userNotesData[albumTitle];
         const favTrackInput = document.getElementById('modalFavTrack');
         const textarea = document.getElementById('modalNotesText');
-        const selectedTagChips = document.getElementById('modalTagsContainer').querySelectorAll('.tag-chip.selected');
         
         notes.favoriteTrack = favTrackInput.value.trim();
         notes.text = textarea.value;
-        notes.vibeTags = Array.from(selectedTagChips).map(chip => chip.dataset.tag);
 
         saveUserNotesData(); 
 
-        document.getElementById('modalConfirmation').classList.add('visible');
-        setTimeout(() => document.getElementById('modalConfirmation').classList.remove('visible'), 2500);
+        showToast("Private notes saved!");
         return;
     }
     
-    // Post Community Note (Shared)
     if (target.id === 'addCommunityNoteBtn') {
         const noteTextarea = document.getElementById('newCommunityNote');
         const noteText = noteTextarea.value.trim();
@@ -685,11 +615,11 @@ modal.addEventListener('click', (e) => {
                 timestamp: new Date().toISOString()
             };
             
-            // Note: In a real app, this is where you'd send data to the server
             album.communityNotes.push(newNote);
             
             noteTextarea.value = ''; 
             renderCommunityNotes(album); 
+            showToast("Annotation posted!");
         } else {
             alert("Please enter a longer note (min 6 characters).");
         }
@@ -702,55 +632,36 @@ document.getElementById('modalNotesText')?.addEventListener('input', (e) => {
     document.getElementById('modalCharCounter').textContent = `Characters: ${e.target.value.length}`;
 });
 
-/* =========================
- 7. EMBED & QUEUE MANAGEMENT
- ========================= */
-
-/**
- * Toggles an album's presence in the "Next Up" Queue.
- */
 function toggleQueue(album) {
     const title = album.title;
     const existingIndex = albumQueue.findIndex(a => a.title === title);
     
     if (existingIndex !== -1) {
-        // Remove from queue
         albumQueue.splice(existingIndex, 1);
         album.isQueue = false; 
+        showToast(`${album.title} removed from queue`, 'info');
     } else {
-        // Add to queue (to the end)
         albumQueue.push(album);
         album.isQueue = true; 
+        showToast(`${album.title} added to queue`, 'success');
     }
     saveAlbumData(); 
     filterAndSortAlbums(); 
 }
 
-/**
- * Plays the next album in the queue.
- */
 function playNextInQueue() {
     if (albumQueue.length > 0) {
-        // Remove the next album from the start of the queue
         const nextAlbum = albumQueue.shift(); 
-        
         nextAlbum.isQueue = false;
-
-        // Play it
         toggleAlbumEmbed(null, nextAlbum.link, nextAlbum);
-        
         saveAlbumData(); 
         filterAndSortAlbums(); 
     } else {
         closeFloatingPlayer();
-        alert("The queue is now empty!");
+        showToast("Queue is empty!", 'error');
     }
 }
 
-
-/**
- * Stops playback, hides the floating player, and resets the playing state.
- */
 function closeFloatingPlayer() {
     const player = document.getElementById('floatingPlayer');
     const playerIframe = player ? player.querySelector('iframe') : null;
@@ -765,9 +676,6 @@ function closeFloatingPlayer() {
     updatePlayingState(); 
 }
 
-/**
- * Toggles the album embed player state.
- */
 function toggleAlbumEmbed(card, link, album) {
     const youtubeData = getYouTubeData(link);
     const youtubeId = youtubeData.id;
@@ -782,20 +690,15 @@ function toggleAlbumEmbed(card, link, album) {
     const isCurrentAlbumPlaying = currentlyPlayingAlbumTitle === album.title;
 
     if (isCurrentAlbumPlaying) {
-        // Stop playback
         closeFloatingPlayer();
     } else {
-        // Start playing the new album
-
         closeFloatingPlayer(); 
 
-        // Update State, Track Play Count, and LAST PLAYED DATE
         currentlyPlayingAlbumTitle = album.title;
         album.playCount = (album.playCount || 0) + 1;
         album.lastPlayed = new Date().toISOString(); 
         saveAlbumData();
         
-        // Set Floating Player to EXPANDED state
         playerIframe.src = youtubeData.embedSrc; 
         player.classList.add('active'); 
         player.classList.add('expanded'); 
@@ -806,6 +709,12 @@ function toggleAlbumEmbed(card, link, album) {
         
         vinylSound.currentTime = 0;
         vinylSound.play();
+        showToast(`Now Playing: ${album.title}`);
+        
+        // NEW: Update Focus Mode if active
+        if(focusOverlay.classList.contains('active')) {
+            updateFocusMode(album);
+        }
     }
     
     filterAndSortAlbums(); 
@@ -813,7 +722,7 @@ function toggleAlbumEmbed(card, link, album) {
 
 
 /* =========================
- 8. QUEUE MODAL IMPLEMENTATION
+ 8. QUEUE & DRAG DROP
  ========================= */
 
 function openQueueModal() {
@@ -825,9 +734,6 @@ function closeQueueModal() {
     queueModal.classList.remove('active');
 }
 
-/**
- * Renders the queue list items for the modal.
- */
 function renderQueueList() {
     if (!queueListEl) return;
     
@@ -858,9 +764,6 @@ function renderQueueList() {
     addDragDropListeners();
 }
 
-/**
- * Handles actions within the Queue Modal (Remove, Clear, Play Next).
- */
 queueModal.addEventListener('click', (e) => {
     const target = e.target;
     const action = target.dataset.action || target.closest('button')?.dataset.action;
@@ -896,11 +799,6 @@ queueModal.addEventListener('click', (e) => {
     }
 });
 
-
-/* =========================
- 9. DRAG AND DROP LOGIC
- ========================= */
-
 let draggedItem = null;
 
 function addDragDropListeners() {
@@ -925,7 +823,6 @@ function handleDragEnd(e) {
     this.classList.remove('drag-over-top', 'drag-over-bottom');
     draggedItem = null;
     
-    // Clean up drag indicators
     queueListEl.querySelectorAll('.queue-item').forEach(item => {
         item.classList.remove('drag-over-top', 'drag-over-bottom');
     });
@@ -981,21 +878,15 @@ function handleDrop(e) {
 }
 
 /* =========================
- 10. ALBUM SUBMISSION LOGIC (ADD/EDIT)
+ 9. CRUD & FORM
  ========================= */
 
-/**
- * NEW: Opens the modal and populates it for editing an existing album.
- */
 function openEditAlbumModal(album) {
     document.getElementById('submissionModalTitle').innerHTML = `<i class="fas fa-edit"></i> Edit **${escapeHtml(album.title)}**`;
     document.getElementById('submissionButton').textContent = 'Save Changes';
     document.getElementById('submissionMessage').style.display = 'none';
     
-    // Set the hidden ID field (key to identifying an edit operation)
     document.getElementById('submissionAlbumId').value = album.id;
-    
-    // Pre-fill the form fields
     document.getElementById('submissionAlbumTitle').value = album.title;
     document.getElementById('submissionAlbumArtist').value = album.artist;
     document.getElementById('submissionAlbumYear').value = album.year;
@@ -1003,35 +894,45 @@ function openEditAlbumModal(album) {
     document.getElementById('submissionAlbumCover').value = album.cover;
     document.getElementById('submissionAlbumLink').value = album.link;
 
+    deleteAlbumBtn.style.display = 'block';
+    
+    deleteAlbumBtn.onclick = function() {
+        if(confirm(`Are you sure you want to delete "${album.title}"? This cannot be undone.`)) {
+            // Remove from array
+            albums = albums.filter(a => a.id !== album.id);
+            // Remove from queue if present
+            albumQueue = albumQueue.filter(a => a.title !== album.title);
+            // Cleanup notes
+            delete userNotesData[album.title];
+            
+            saveAlbumData();
+            saveUserNotesData();
+            filterAndSortAlbums();
+            
+            submissionModal.classList.remove('active');
+            showToast("Album deleted successfully", "error");
+        }
+    };
+
     submissionModal.classList.add('active');
 }
 
-/**
- * NEW: Updates an existing album in the array.
- */
 function updateExistingAlbum(albumId, newAlbumData) {
-    
     let originalTitle = '';
 
-    // Use map to create a new album array with the updated data
     albums = albums.map(album => {
         if (album.id === albumId) {
             originalTitle = album.title;
-
-            // Merge old data with new data (ensuring mutable stats are carried over)
             const updatedAlbum = {
                 ...album,
                 ...newAlbumData,
-                // Ensure the ID is not accidentally overwritten
                 id: albumId,
             };
             
-            // If the title changed, we need to update the key in userNotesData
             if (originalTitle !== updatedAlbum.title) {
                 userNotesData[updatedAlbum.title] = userNotesData[originalTitle];
                 delete userNotesData[originalTitle];
             }
-            
             return updatedAlbum;
         }
         return album;
@@ -1041,9 +942,6 @@ function updateExistingAlbum(albumId, newAlbumData) {
     saveUserNotesData();
 }
 
-/**
- * NEW: Adds a brand new album to the collection.
- */
 function addNewAlbum(data) {
     const newAlbum = {
         id: getNextAlbumId(),
@@ -1058,19 +956,15 @@ function addNewAlbum(data) {
         playCount: 0,
         isFavorite: false,
         lastPlayed: null,
-        userNotes: { text: '', favoriteTrack: '', vibeTags: [] },
+        userNotes: { text: '', favoriteTrack: '' },
         communityNotes: [] 
     };
     albums.push(newAlbum);
     saveAlbumData();
-    // Initialize userNotesData for the new album
     userNotesData[newAlbum.title] = newAlbum.userNotes;
     saveUserNotesData();
 }
 
-/**
- * Refactored to handle the submission for both New Album and Edit Album.
- */
 function handleNewAlbumSubmission(e) {
     e.preventDefault();
 
@@ -1095,28 +989,22 @@ function handleNewAlbumSubmission(e) {
     const submissionMessageEl = document.getElementById('submissionMessage');
 
     if (albumId) {
-        // --- EDIT MODE ---
         updateExistingAlbum(albumId, submittedData);
-        submissionMessageEl.textContent = `${submittedData.title} updated successfully!`;
-
+        showToast(`${submittedData.title} updated successfully!`);
     } else {
-        // --- ADD MODE ---
         if (albums.some(a => a.title === submittedData.title && a.artist === submittedData.artist)) {
             alert(`Album "${submittedData.title}" by ${submittedData.artist} already exists in the collection.`);
             return;
         }
         addNewAlbum(submittedData);
-        submissionMessageEl.textContent = `${submittedData.title} by ${submittedData.artist} added successfully!`;
+        showToast(`${submittedData.title} added successfully!`);
         form.reset();
     }
     
-    // Final UI Updates
     renderGenreFilterButtons(); 
-    renderVibeTagFilters();
     calculateStats();
     filterAndSortAlbums(); 
 
-    // Show confirmation and close modal
     submissionMessageEl.style.display = 'block';
     setTimeout(() => {
         submissionMessageEl.style.display = 'none';
@@ -1126,7 +1014,7 @@ function handleNewAlbumSubmission(e) {
 
 
 /* =========================
- 11. SCROLL & EVENT HANDLING
+ 10. EVENTS
  ========================= */
 
 window.onscroll = function() {
@@ -1142,27 +1030,39 @@ window.onscroll = function() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initial Load and Setup
   loadAlbumData(); 
   initializeDarkMode();
   renderGenreFilterButtons(); 
-    renderVibeTagFilters();
   calculateStats(); 
   pickRandomAlbum();
-  filterAndSortAlbums(); 
-
-    // Inject the floating player structure into the body
-    const floatingPlayerHTML = `
+  
+  // Create Player element
+  document.body.insertAdjacentHTML('beforeend', `
         <div id="floatingPlayer">
             <button class="player-close-btn" onclick="closeFloatingPlayer()">X</button>
             <iframe></iframe>
         </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', floatingPlayerHTML);
+    `);
 
-    updateQueueDisplay();
+  updateQueueDisplay();
+  
+  // Initialize View Mode
+  const savedView = localStorage.getItem('viewMode');
+  if(savedView === 'list') {
+      albumContainer.classList.add('list-view');
+      listViewBtn.classList.add('active');
+      gridViewBtn.classList.remove('active');
+      shelfViewBtn.classList.remove('active');
+  } else if (savedView === 'shelf') {
+      albumContainer.classList.add('shelf-view');
+      shelfViewBtn.classList.add('active');
+      gridViewBtn.classList.remove('active');
+      listViewBtn.classList.remove('active');
+  } else {
+      filterAndSortAlbums(); // Grid is default
+  }
 
-  // --- ALBUM CARD ACTIONS (Delegated) ---
+  // --- ALBUM CARD ACTIONS ---
   albumContainer?.addEventListener('click', (e) => {
     const card = e.target.closest('.album-card');
     if (!card) return;
@@ -1170,7 +1070,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const album = albums.find(a => a.title === albumTitle);
     if (!album) return;
 
-        // 1. Rating Star Click
     if (e.target.classList.contains('star-icon')) {
       const newRating = parseInt(e.target.dataset.rating, 10);
       album.rating = album.rating === newRating ? 0 : newRating;
@@ -1179,7 +1078,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 2. Favorite Heart Click
     if (e.target.classList.contains('favorite-icon')) {
       album.isFavorite = !album.isFavorite;
       saveAlbumData();
@@ -1187,55 +1085,40 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
         
-        // 3. EMBED VIEW TOGGLE 
-        if (e.target.closest('.album-embed-btn')) {
-            toggleAlbumEmbed(card, album.link, album);
-            return;
-        }
+    if (e.target.closest('.album-embed-btn')) {
+        toggleAlbumEmbed(card, album.link, album);
+        return;
+    }
 
-        // 4. QUEUE TOGGLE
-        if (e.target.closest('.queue-btn')) {
-            toggleQueue(album);
-            filterAndSortAlbums(); 
-            return;
-        }
+    if (e.target.closest('.queue-btn')) {
+        toggleQueue(album);
+        filterAndSortAlbums(); 
+        return;
+    }
 
-        // 5. OPEN MODAL (Clicking the Cover Image)
-        if (e.target.classList.contains('album-cover')) {
-            openAlbumModal(album);
-            return;
-        }
+    if (e.target.classList.contains('album-cover')) {
+        openAlbumModal(album);
+        return;
+    }
 
-        // 6. INTERACTIVE GENRE TAG FILTER
-        if (e.target.classList.contains('interactive-genre-tag')) {
-            const genreToFilter = e.target.dataset.genre.toLowerCase().split(' / ')[0].trim();
-            
-            currentGenreFilter = (currentGenreFilter === genreToFilter) ? 'all' : genreToFilter;
-            currentVibeTagFilter = 'all'; 
-            
-            updateFilterButtons(genreFiltersContainer, currentGenreFilter);
-            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter); 
-            updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
-            
-            filterAndSortAlbums();
-            return;
-        }
+    if (e.target.classList.contains('interactive-genre-tag')) {
+        const genreToFilter = e.target.dataset.genre.toLowerCase().split(' / ')[0].trim();
+        currentGenreFilter = (currentGenreFilter === genreToFilter) ? 'all' : genreToFilter;
+        updateFilterButtons(genreFiltersContainer, currentGenreFilter);
+        updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
+        filterAndSortAlbums();
+        return;
+    }
   });
     
     // --- GENRE TAG INTERACTION FROM MODAL ---
     modal.addEventListener('click', (e) => {
         if (e.target.classList.contains('interactive-genre-tag')) {
             const genreToFilter = e.target.dataset.genre.toLowerCase().split(' / ')[0].trim();
-            
             currentGenreFilter = (currentGenreFilter === genreToFilter) ? 'all' : genreToFilter;
-            currentVibeTagFilter = 'all'; 
-            
             closeAlbumModal(); 
-            
             updateFilterButtons(genreFiltersContainer, currentGenreFilter);
-            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter); 
             updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
-
             filterAndSortAlbums();
             return;
         }
@@ -1253,8 +1136,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('submissionModalTitle').innerHTML = `<i class="fas fa-plus-circle"></i> Add New Album`;
         document.getElementById('submissionButton').textContent = 'Submit Album to Collection';
         document.getElementById('submissionForm').reset();
-        document.getElementById('submissionAlbumId').value = ''; // Important: Clear the ID for Add Mode
+        document.getElementById('submissionAlbumId').value = ''; 
         document.getElementById('submissionMessage').style.display = 'none';
+        deleteAlbumBtn.style.display = 'none';
         submissionModal.classList.add('active');
     });
 
@@ -1265,6 +1149,68 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     submissionForm?.addEventListener('submit', handleNewAlbumSubmission);
+    
+    // NEW: DATA MODAL LISTENERS
+    openDataModalBtn?.addEventListener('click', () => dataModal.classList.add('active'));
+
+    dataModal?.addEventListener('click', (e) => {
+        if (e.target.dataset.action === 'close-data-modal' || e.target === dataModal) {
+            dataModal.classList.remove('active');
+        }
+    });
+
+    // EXPORT
+    exportDataBtn?.addEventListener('click', () => {
+        const dataStr = JSON.stringify(albums, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `soul_repo_backup_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast("Backup downloaded successfully!");
+    });
+
+    // IMPORT
+    triggerImportBtn?.addEventListener('click', () => importFileInput.click());
+
+    importFileInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const importedAlbums = JSON.parse(event.target.result);
+                
+                if (Array.isArray(importedAlbums)) {
+                    if(confirm(`Found ${importedAlbums.length} albums. This will REPLACE your current collection. Continue?`)) {
+                        albums = importedAlbums;
+                        saveAlbumData(); 
+                        
+                        renderGenreFilterButtons(); 
+                        calculateStats();
+                        filterAndSortAlbums();
+                        
+                        dataModal.classList.remove('active');
+                        showToast("Collection restored successfully!", "success");
+                    }
+                } else {
+                    alert("Invalid backup file format.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error reading file. Make sure it's a valid JSON backup.");
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = ''; 
+    });
 
 
   // --- EXTERNAL CONTROLS ---
@@ -1286,90 +1232,109 @@ document.addEventListener('DOMContentLoaded', () => {
 
   darkModeToggle?.addEventListener('click', toggleDarkMode);
     
-    // Genre Filter Buttons delegation (Top Filter)
+    // Genre Filter
     genreFiltersContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('genre-filter-btn')) {
             const filterKey = e.target.dataset.filterKey;
             currentGenreFilter = (currentGenreFilter === filterKey) ? 'all' : filterKey;
-            currentVibeTagFilter = 'all'; 
             updateFilterButtons(genreFiltersContainer, currentGenreFilter);
-            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter); 
-            // Update the sidebar genre chips as well
             updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
             filterAndSortAlbums();
         }
     });
-
-    // Vibe Tag Filter Buttons delegation
-    vibeTagFiltersContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('genre-filter-btn')) {
-            const filterKey = e.target.dataset.filterKey;
-            currentVibeTagFilter = (currentVibeTagFilter === filterKey) ? 'all' : filterKey;
-            currentGenreFilter = 'all'; 
-            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter);
-            updateFilterButtons(genreFiltersContainer, currentGenreFilter); 
+    
+    // Decade Filter
+    decadeFiltersContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('decade-filter-btn')) {
+            const decade = e.target.dataset.decade;
+            currentDecadeFilter = (currentDecadeFilter === decade) ? 'all' : decade;
+            
+            document.querySelectorAll('.decade-filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (currentDecadeFilter !== 'all') {
+                e.target.classList.add('active');
+            } else {
+                document.querySelector('.decade-filter-btn[data-decade="all"]').classList.add('active');
+            }
             filterAndSortAlbums();
         }
     });
 
-    // Sidebar Click Delegation
+    // Sidebar
     document.querySelector('.sidebar')?.addEventListener('click', (e) => {
         const target = e.target;
-        
-        // Handle Genre Breakdown Chip Click
         if (target.classList.contains('genre-breakdown-chip')) {
             const filterKey = target.dataset.genreKey;
             currentGenreFilter = (currentGenreFilter === filterKey) ? 'all' : filterKey;
-            currentVibeTagFilter = 'all'; 
-            
-            // Update all related UIs
             updateFilterButtons(document.querySelector('.genre-tag-breakdown'), currentGenreFilter);
             updateFilterButtons(genreFiltersContainer, currentGenreFilter);
-            updateFilterButtons(vibeTagFiltersContainer, currentVibeTagFilter); 
             filterAndSortAlbums();
         }
-
-        // Handle Recently Added Item Click
         if (target.dataset.action === 'open-modal-from-sidebar' && target.dataset.title) {
             const albumTitle = target.dataset.title;
             const album = albums.find(a => a.title === albumTitle);
-            if (album) {
-                openAlbumModal(album);
-            }
+            if (album) openAlbumModal(album);
         }
+    });
+    
+    // NEW: View Toggles
+    gridViewBtn.addEventListener('click', () => {
+        albumContainer.classList.remove('list-view', 'shelf-view');
+        gridViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+        shelfViewBtn.classList.remove('active');
+        localStorage.setItem('viewMode', 'grid');
+    });
+
+    listViewBtn.addEventListener('click', () => {
+        albumContainer.classList.remove('shelf-view');
+        albumContainer.classList.add('list-view');
+        listViewBtn.classList.add('active');
+        gridViewBtn.classList.remove('active');
+        shelfViewBtn.classList.remove('active');
+        localStorage.setItem('viewMode', 'list');
+    });
+    
+    shelfViewBtn.addEventListener('click', () => {
+        albumContainer.classList.remove('list-view');
+        albumContainer.classList.add('shelf-view');
+        shelfViewBtn.classList.add('active');
+        gridViewBtn.classList.remove('active');
+        listViewBtn.classList.remove('active');
+        localStorage.setItem('viewMode', 'shelf');
+    });
+    
+    // NEW: Focus Mode Handlers
+    openFocusModeBtn.addEventListener('click', () => {
+        const playingAlbum = albums.find(a => a.title === currentlyPlayingAlbumTitle);
+        updateFocusMode(playingAlbum);
+        focusOverlay.classList.add('active');
+    });
+    
+    closeFocusBtn.addEventListener('click', () => {
+        focusOverlay.classList.remove('active');
     });
 });
 
-/**
- * Helper function to update filter button active classes.
- */
-function updateFilterButtons(container, activeFilter) {
-    if (!container) return;
-    // Determine the data attribute key based on the container type
-    const keyAttribute = container.classList.contains('genre-tag-breakdown') ? 'genreKey' : 'filterKey';
-    
-    container.querySelectorAll(`[data-${keyAttribute}]`).forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset[keyAttribute] === activeFilter) {
-            btn.classList.add('active');
-        }
-    });
-}
-
-
 /* =========================
- 12. STATS / RANDOM / DARK MODE / GENRE FILTERS
+ 11. STATS & UTILS
  ========================= */
 
-/**
- * Calculates and updates the stats panel elements, dynamically rendering the
- * entire sidebar stats section using the new card structure.
- */
+function updateFocusMode(album) {
+    if (!album) {
+        focusTitle.textContent = "No Music Playing";
+        focusArtist.textContent = "Select an album to start";
+        focusCover.src = "images/placeholder.jpg";
+        focusCover.style.animation = "none";
+    } else {
+        focusTitle.textContent = album.title;
+        focusArtist.textContent = album.artist;
+        focusCover.src = album.cover;
+        focusCover.style.animation = "spin 4s linear infinite";
+    }
+}
+
 function calculateStats() {
-    
   const albumCount = albums.length;
-  
-    // 1. Calculate Genre Counts
   const genreCounts = {};
   albums.forEach(a => {
     a.genre.split(' / ').forEach(g => {
@@ -1379,17 +1344,14 @@ function calculateStats() {
   });
     const sortedGenres = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]);
 
-
-    // --- UI INJECTION ---
     const albumCountEl = document.getElementById('albumCount');
     const topGenreEl = document.getElementById('topGenre');
     const topAlbumEl = document.getElementById('topAlbum');
     const recentAlbumsEl = document.getElementById('recentAlbums');
     const genreDistEl = document.getElementById('genreDistribution');
     
-    if (!albumCountEl || !topGenreEl || !topAlbumEl || !recentAlbumsEl || !genreDistEl) return;
+    if (!albumCountEl) return;
     
-    // 2. Base Stats Logic
     const topAlbum = albums.slice().sort((a, b) => (b.playCount || 0) - (a.playCount || 0))[0];
     const topGenre = sortedGenres[0]?.[0] || 'N/A';
     
@@ -1397,7 +1359,6 @@ function calculateStats() {
     topGenreEl.textContent = topGenre;
     topAlbumEl.textContent = topAlbum ? `${topAlbum.title} (${topAlbum.playCount} plays)` : 'N/A';
     
-    // 3. Recently Added List
   recentAlbumsEl.innerHTML = "";
   const recent = albums.slice().sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)).slice(0, 3);
   recent.forEach(album => {
@@ -1408,26 +1369,35 @@ function calculateStats() {
     recentAlbumsEl.appendChild(li);
   });
     
-    // 4. Genre Breakdown Tag Chips HTML (Dynamic Filtering)
     genreDistEl.innerHTML = sortedGenres.map(([genre, count]) => {
         const key = genre.toLowerCase();
         const activeClass = (key === currentGenreFilter) ? ' active' : '';
-        // Note: Using data-genre-key for sidebar chips
         return `<span class="genre-breakdown-chip${activeClass}" data-genre-key="${key}">${genre} (${count})</span>`;
     }).join('');
 }
 
-
-// Picks and displays a random album cover/title in the stats panel
 function pickRandomAlbum() {
   if (!albums.length) return;
   const rand = albums[Math.floor(Math.random() * albums.length)];
   const cover = document.getElementById("randomAlbumCover");
   const text = document.getElementById("randomAlbumText");
+  
   if (cover && text) {
     cover.src = rand.cover;
     cover.alt = rand.title;
-    text.textContent = `${rand.title} — ${rand.artist}`;
+    cover.onclick = function() { openAlbumModal(rand); };
+    
+    text.innerHTML = `
+        <span style="display:block; font-weight:bold; font-size:1.05rem; margin-bottom:4px; color:var(--text-primary);">
+            ${escapeHtml(rand.title)}
+        </span>
+        <span style="color:var(--text-secondary); font-size:0.9rem;">
+            ${escapeHtml(rand.artist)}
+        </span>
+        <p style="font-size:0.75rem; color:var(--accent-color); margin-top:8px; cursor:pointer;">
+            <i class="fas fa-expand-arrows-alt"></i> Click cover to view
+        </p>
+    `;
   }
 }
 
@@ -1448,10 +1418,8 @@ function initializeDarkMode() {
   if (darkModeToggle) darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
 }
 
-// Renders the filter buttons at the top of the main content area
 function renderGenreFilterButtons() {
   if (!genreFiltersContainer) return;
-  // Get all unique genres for the main filter buttons
     const allGenres = new Set(albums.flatMap(a => a.genre.split(' / ').map(g => g.trim())));
   genreFiltersContainer.innerHTML = '';
   const genres = ['All', ...Array.from(allGenres).sort()];
@@ -1468,22 +1436,14 @@ function renderGenreFilterButtons() {
   });
 }
 
-// Renders dynamic Vibe Tag filter buttons 
-function renderVibeTagFilters() {
-    if (!vibeTagFiltersContainer) return;
-
-    const allVibeTags = new Set(albums.flatMap(a => (a.userNotes.vibeTags || []).map(t => t.trim())));
-    vibeTagFiltersContainer.innerHTML = '';
-    const vibeTags = ['All Tags', ...Array.from(allVibeTags).sort()];
-
-    vibeTags.forEach(tag => {
-        const btn = document.createElement('button');
-        btn.textContent = tag;
-        btn.className = 'genre-filter-btn';
-        const filterKey = (tag === 'All Tags' ? 'all' : tag.toLowerCase());
-        btn.dataset.filterKey = filterKey;
-
-        if (filterKey === currentVibeTagFilter) btn.classList.add('active');
-        vibeTagFiltersContainer.appendChild(btn);
+function updateFilterButtons(container, activeFilter) {
+    if (!container) return;
+    const keyAttribute = container.classList.contains('genre-tag-breakdown') ? 'genreKey' : 'filterKey';
+    
+    container.querySelectorAll(`[data-${keyAttribute}]`).forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset[keyAttribute] === activeFilter) {
+            btn.classList.add('active');
+        }
     });
 }
